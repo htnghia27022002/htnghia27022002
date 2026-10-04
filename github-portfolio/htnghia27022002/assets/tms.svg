@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" width="860" height="380" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#0f2a3a"/>
+    </linearGradient>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0V24" fill="none" stroke="#1a2346" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="truck">
+      <rect x="-11" y="-6" width="15" height="12" rx="2"/>
+      <rect x="4" y="-4" width="7" height="8" rx="2" opacity="0.8"/>
+    </g>
+  </defs>
+
+  <rect width="860" height="380" rx="18" fill="url(#bg)"/>
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#e6e9f5">Logistics Platform · TMS / WMS / Last-mile</text>
+  <text x="32" y="68" font-size="13" fill="#94a0c6">Go · PHP · REST &amp; WebSocket APIs · Real-time GPS sync · Dynamic routing</text>
+
+  <!-- ===== Map ===== -->
+  <rect x="32" y="88" width="460" height="264" rx="14" fill="#0d1530" stroke="#26304f"/>
+  <rect x="33" y="89" width="458" height="262" rx="13" fill="url(#grid)"/>
+  <text x="48" y="110" font-size="11" font-weight="600" fill="#22d3ee" letter-spacing="1.5">LIVE GPS · DISPATCH MAP</text>
+
+  <g fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 8">
+    <path id="r1" d="M120,300 C200,260 260,200 420,140" stroke="#22d3ee" opacity="0.6">
+      <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <path id="r2" d="M120,300 C220,330 340,310 440,276" stroke="#c084fc" opacity="0.6">
+      <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <path id="r3" d="M120,300 C130,220 190,150 260,136" stroke="#34d399" opacity="0.6">
+      <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- destinations -->
+  <g>
+    <circle cx="420" cy="140" r="6" fill="#22d3ee"/>
+    <circle cx="420" cy="140" r="6" fill="none" stroke="#22d3ee" stroke-width="2">
+      <animate attributeName="r" values="6;22" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="440" cy="276" r="6" fill="#c084fc"/>
+    <circle cx="440" cy="276" r="6" fill="none" stroke="#c084fc" stroke-width="2">
+      <animate attributeName="r" values="6;22" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="260" cy="136" r="6" fill="#34d399"/>
+    <circle cx="260" cy="136" r="6" fill="none" stroke="#34d399" stroke-width="2">
+      <animate attributeName="r" values="6;22" dur="2s" begin="1.3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0" dur="2s" begin="1.3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- depot -->
+  <rect x="102" y="284" width="36" height="32" rx="7" fill="#fbbf24"/>
+  <text x="120" y="305" text-anchor="middle" font-size="11" font-weight="800" fill="#0b1020">WH</text>
+  <text x="120" y="334" text-anchor="middle" font-size="10" fill="#94a0c6">Warehouse</text>
+
+  <!-- trucks -->
+  <g filter="url(#glow)">
+    <use href="#truck" fill="#22d3ee">
+      <animateMotion dur="5s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;1" keyTimes="0;0.85;1" calcMode="linear"><mpath href="#r1"/></animateMotion>
+    </use>
+    <use href="#truck" fill="#c084fc">
+      <animateMotion dur="6s" begin="-0.8s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;1" keyTimes="0;0.85;1" calcMode="linear"><mpath href="#r2"/></animateMotion>
+    </use>
+    <use href="#truck" fill="#34d399">
+      <animateMotion dur="4s" begin="-0.4s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;1" keyTimes="0;0.85;1" calcMode="linear"><mpath href="#r3"/></animateMotion>
+    </use>
+  </g>
+
+  <!-- ===== Order lifecycle ===== -->
+  <text x="520" y="110" font-size="11" font-weight="600" fill="#22d3ee" letter-spacing="1.5">ORDER LIFECYCLE</text>
+  <g font-size="13" fill="#e6e9f5">
+    <rect x="520" y="122" width="306" height="32" rx="9" fill="#121a33" stroke="#26304f" stroke-width="1.5">
+      <animate attributeName="stroke" values="#26304f;#22d3ee;#22d3ee;#26304f" keyTimes="0;0.03;0.94;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="536" y="143">① Order ingested from client ERP / API</text>
+
+    <rect x="520" y="162" width="306" height="32" rx="9" fill="#121a33" stroke="#26304f" stroke-width="1.5">
+      <animate attributeName="stroke" values="#26304f;#26304f;#22d3ee;#22d3ee;#26304f" keyTimes="0;0.18;0.21;0.94;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="536" y="183">② Route optimized</text>
+
+    <rect x="520" y="202" width="306" height="32" rx="9" fill="#121a33" stroke="#26304f" stroke-width="1.5">
+      <animate attributeName="stroke" values="#26304f;#26304f;#22d3ee;#22d3ee;#26304f" keyTimes="0;0.36;0.39;0.94;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="536" y="223">③ Dispatched to driver app</text>
+
+    <rect x="520" y="242" width="306" height="32" rx="9" fill="#121a33" stroke="#26304f" stroke-width="1.5">
+      <animate attributeName="stroke" values="#26304f;#26304f;#22d3ee;#22d3ee;#26304f" keyTimes="0;0.54;0.57;0.94;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="536" y="263">④ In transit · live GPS via WebSocket</text>
+
+    <rect x="520" y="282" width="306" height="32" rx="9" fill="#121a33" stroke="#26304f" stroke-width="1.5">
+      <animate attributeName="stroke" values="#26304f;#26304f;#34d399;#34d399;#26304f" keyTimes="0;0.72;0.75;0.94;1" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#121a33;#121a33;#0f3328;#0f3328;#121a33" keyTimes="0;0.72;0.75;0.94;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="536" y="303">⑤ Delivered · QR scan + POD photo</text>
+  </g>
+
+  <text x="520" y="348" font-size="24" font-weight="800" fill="#34d399">−15–20%</text>
+  <text x="634" y="340" font-size="11" fill="#e6e9f5">operating cost for clients</text>
+  <text x="634" y="355" font-size="11" fill="#94a0c6">15+ enterprises · 1,000+ daily users</text>
+</svg>

@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Huynh Trong Nghia · Backend Engineer</title>
+<meta name="description" content="Backend Engineer (Go / PHP) — distributed, real-time systems. Interactive demos of production projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1020; --bg2:#121a33; --panel:#10172e; --line:#26304f; --line2:#2b3560;
+  --text:#e6e9f5; --muted:#94a0c6;
+  --indigo:#818cf8; --cyan:#22d3ee; --green:#34d399; --amber:#fbbf24; --rose:#fb7185; --violet:#c084fc;
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;line-height:1.55;overflow-x:hidden}
+a{color:inherit}
+.mono{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+
+/* background orbs */
+.orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.orbs span{position:absolute;border-radius:50%;filter:blur(90px);opacity:.28}
+.orbs span:nth-child(1){width:420px;height:420px;background:#6366f1;top:-120px;left:-100px;animation:drift 18s ease-in-out infinite}
+.orbs span:nth-child(2){width:380px;height:380px;background:#06b6d4;bottom:-140px;right:-80px;animation:drift 22s ease-in-out infinite reverse}
+.orbs span:nth-child(3){width:300px;height:300px;background:#c084fc;top:40%;left:55%;animation:drift 26s ease-in-out infinite}
+@keyframes drift{50%{transform:translate(80px,60px)}}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:rgba(11,16,32,.72);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:20px;height:60px}
+.logo{font-weight:800;letter-spacing:.5px;text-decoration:none;background:linear-gradient(90deg,var(--indigo),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav .links{display:flex;gap:4px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto}
+nav .links a{text-decoration:none;color:var(--muted);font-size:14px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+nav .links a:hover{color:var(--text);background:var(--bg2)}
+
+/* hero */
+.hero{padding:88px 0 56px;text-align:center}
+.hero h1{font-size:clamp(34px,6vw,64px);line-height:1.05;margin:0 0 16px;font-weight:800;letter-spacing:-1px;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.role{font-size:clamp(16px,2.4vw,22px);color:var(--text);min-height:1.6em}
+.role .cursor{display:inline-block;width:2px;height:1.1em;background:var(--cyan);vertical-align:-3px;margin-left:3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero p.sub{color:var(--muted);max-width:640px;margin:14px auto 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:860px;margin:40px auto 0}
+.stat{background:linear-gradient(180deg,rgba(18,26,51,.9),rgba(16,23,46,.7));border:1px solid var(--line);border-radius:var(--radius);padding:18px 12px}
+.stat b{display:block;font-size:28px;font-weight:800}
+.stat span{font-size:13px;color:var(--muted)}
+.cta{display:flex;gap:12px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--bg2);color:var(--text);padding:10px 18px;border-radius:999px;font:600 14px Inter,sans-serif;cursor:pointer;text-decoration:none;transition:transform .15s,border-color .15s,background .15s}
+.btn:hover{transform:translateY(-1px);border-color:var(--indigo)}
+.btn.primary{background:linear-gradient(90deg,#6366f1,#06b6d4);border-color:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.sm{padding:7px 14px;font-size:13px}
+
+/* project sections */
+section.project{padding:72px 0;border-top:1px solid rgba(38,48,79,.6);scroll-margin-top:60px}
+.ph{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:36px;align-items:start}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.ph h2{font-size:clamp(24px,3.4vw,34px);margin:8px 0 12px;line-height:1.15}
+.ph .desc{color:var(--muted);margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--text)}
+.ph ul{padding-left:18px;margin:0;color:var(--text)}
+.ph li{margin:6px 0}
+.ph li b{color:var(--cyan)}
+.try{margin-top:18px;font-size:13px;color:var(--muted);border-left:3px solid var(--indigo);padding:6px 12px;background:rgba(129,140,248,.08);border-radius:0 8px 8px 0}
+
+.demo{background:linear-gradient(180deg,rgba(18,26,51,.95),rgba(13,19,40,.95));border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 20px 60px -30px rgba(99,102,241,.5)}
+.demo-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.demo-head .title{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot3{display:flex;gap:6px}.dot3 i{width:10px;height:10px;border-radius:50%;display:block}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line2);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.toggle input::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle input:checked{background:var(--green)}
+.toggle input:checked::after{left:17px}
+.toggle input.danger:checked{background:var(--rose)}
+
+.log{margin-top:12px;background:#0a0f1f;border:1px solid var(--line);border-radius:12px;padding:10px 12px;height:140px;overflow:auto;font:12px/1.6 "JetBrains Mono",Consolas,monospace;color:var(--muted)}
+.log div{white-space:nowrap}
+.log .t{color:#5b6690;margin-right:8px}
+.log .ok{color:var(--green)} .log .err{color:var(--rose)} .log .info{color:var(--cyan)} .log .warn{color:var(--amber)}
+
+/* CRM */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative;padding:8px 0 4px}
+.flow::before{content:"";position:absolute;left:8%;right:8%;top:44px;border-top:2px dashed var(--line2);z-index:0}
+.node{position:relative;z-index:1;background:var(--bg2);border:2px solid var(--line2);border-radius:14px;padding:12px 8px;text-align:center;transition:all .25s}
+.node b{display:block;font-size:14px}
+.node small{color:var(--muted);font-size:11px}
+.node .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--rose);color:#fff;opacity:0;transition:opacity .2s;white-space:nowrap}
+.node.active{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.15),0 0 24px rgba(34,211,238,.35)}
+.node.done{border-color:var(--green)}
+.node.fail{border-color:var(--rose);background:#3a1424;animation:shake .35s}
+.node.fail .badge{opacity:1}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.ws{margin-top:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.ws canvas{width:100%;height:150px;background:#0a0f1f;border:1px solid var(--line);border-radius:12px;display:block}
+.ws .meter{text-align:right;min-width:150px}
+.ws .meter b{font-size:28px;color:var(--cyan);font-variant-numeric:tabular-nums}
+.ws .meter span{display:block;font-size:12px;color:var(--muted)}
+input[type=range]{accent-color:var(--cyan);width:100%}
+
+/* TMS */
+.tms{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+.map{position:relative;background:#0a0f1f;border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:crosshair}
+.map svg{display:block;width:100%;height:auto}
+.map .hint{position:absolute;left:10px;bottom:8px;font-size:11px;color:var(--muted);pointer-events:none}
+.orders{background:#0a0f1f;border:1px solid var(--line);border-radius:12px;padding:10px;max-height:340px;overflow:auto}
+.order{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--bg2);margin-bottom:6px;font-size:12px}
+.order{flex-wrap:wrap;row-gap:2px}
+.order .id{font-family:"JetBrains Mono",monospace;font-weight:600;white-space:nowrap}
+.order .eta{order:3;width:100%;font-size:11px}
+.st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.st.created{background:#1e2748;color:var(--muted)}
+.st.routed{background:rgba(129,140,248,.18);color:var(--indigo)}
+.st.dispatched{background:rgba(192,132,252,.18);color:var(--violet)}
+.st.transit{background:rgba(34,211,238,.18);color:var(--cyan)}
+.st.delivered{background:rgba(52,211,153,.18);color:var(--green)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.kpi{background:#0a0f1f;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi b{font-size:22px;font-variant-numeric:tabular-nums;display:block}
+.kpi span{font-size:11px;color:var(--muted)}
+
+/* Ticket */
+.stage{text-align:center;font-size:11px;letter-spacing:3px;color:var(--muted);background:linear-gradient(90deg,transparent,rgba(192,132,252,.25),transparent);border-radius:999px;padding:4px;margin-bottom:12px}
+.seats{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.seat{aspect-ratio:1;border-radius:8px;border:1px solid var(--line2);background:#1e2748;color:var(--muted);font:600 10px Inter,sans-serif;cursor:pointer;padding:0;transition:transform .15s,background .2s}
+.seat:hover{transform:scale(1.08)}
+.seat.a{background:var(--cyan);color:#0b1020;border-color:transparent}
+.seat.b{background:var(--violet);color:#0b1020;border-color:transparent}
+.seat.you{background:var(--green);color:#0b1020;border-color:transparent}
+.seat.taken{background:#3b2a6b;color:#a5a0d0;border-color:transparent}
+.seat.double{background:var(--rose);color:#fff;animation:shake .35s 3}
+.seat.target{outline:3px solid var(--amber);outline-offset:1px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ERP */
+.line{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.stg{min-width:0;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:10px 6px;min-height:150px;display:flex;flex-direction:column;gap:6px}
+.stg h4{margin:0;font-size:11px;line-height:1.2;display:flex;justify-content:space-between;align-items:center;gap:4px}
+.stg h4 em{font-style:normal;font-size:16px}
+.stg .cnt{font-size:10px;color:var(--muted)}
+.tok{font:600 10px "JetBrains Mono",monospace;padding:4px 5px;border-radius:6px;background:rgba(34,211,238,.15);color:var(--cyan);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tok.rework{background:rgba(251,191,36,.18);color:var(--amber)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.belt{height:10px;margin:10px 0 0;border-radius:999px;background:repeating-linear-gradient(90deg,#1e2748 0 12px,#121a33 12px 24px);background-size:24px 10px;animation:belt .6s linear infinite}
+@keyframes belt{to{background-position:24px 0}}
+
+footer{padding:48px 0 60px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+
+@media (max-width:900px){
+  .ph{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .tms{grid-template-columns:1fr}
+  .line{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .flow{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .node{padding:10px 4px}.node b{font-size:12px}.node small{display:none}
+  .ws{grid-template-columns:1fr}.ws .meter{text-align:left}
+  .seats{grid-template-columns:repeat(8,1fr)}
+}
+@media (max-width:520px){
+  nav .links a{padding:6px 8px;font-size:13px}
+  .logo{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="orbs"><span></span><span></span><span></span></div>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#top">HTN.dev</a>
+    <div class="links">
+      <a href="#crm">CRM</a><a href="#tms">TMS</a><a href="#ticket">Ticket</a><a href="#erp">ERP</a>
+      <a href="https://github.com/htnghia27022002" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero wrap" id="top">
+  <h1>Huynh Trong Nghia</h1>
+  <div class="role"><span id="role"></span><span class="cursor"></span></div>
+  <p class="sub">Backend Engineer (Go / PHP) building distributed, real-time systems. Below are interactive simulations of production systems I built — play with them.</p>
+  <div class="stats">
+    <div class="stat"><b style="color:var(--indigo)">3.5+</b><span>years in backend</span></div>
+    <div class="stat"><b style="color:var(--cyan)">10K+</b><span>concurrent WebSockets</span></div>
+    <div class="stat"><b style="color:var(--violet)">15+</b><span>enterprise clients</span></div>
+    <div class="stat"><b style="color:var(--green)">−15–20%</b><span>client operating cost</span></div>
+  </div>
+  <div class="cta">
+    <a class="btn primary" href="#crm">Explore projects ↓</a>
+    <a class="btn" href="https://linkedin.com/in/nghiahuynh" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="btn" href="mailto:htnghia2702@gmail.com">Email me</a>
+  </div>
+</header>
+
+<!-- ================= CRM ================= -->
+<section class="project" id="crm">
+  <div class="wrap ph">
+    <div>
+      <div class="eyebrow" style="color:var(--indigo)">01 · Gaming CRM</div>
+      <h2>Real-time Workflow Platform</h2>
+      <p class="desc">CRM for a high-volume gaming platform: business teams build flows visually, Temporal runs them reliably, and players get updates in real time.</p>
+      <div class="chips"><span class="chip">Go</span><span class="chip">Temporal</span><span class="chip">NATS</span><span class="chip">Kafka</span><span class="chip">WebSocket</span><span class="chip">ClickHouse</span><span class="chip">PostgreSQL</span></div>
+      <ul>
+        <li>Stateful workflow engine on <b>Temporal</b> with automatic retries and recovery</li>
+        <li>Node-based flow builder: business logic configured at runtime</li>
+        <li>Go <b>WebSocket cluster</b> with tens of thousands of concurrent connections</li>
+        <li>Event pipelines on NATS + Kafka; analytics in ClickHouse</li>
+      </ul>
+      <div class="try">Try it: turn on <b>Inject failure</b> and run the workflow — Temporal retries the failed activity instead of losing the player's reward.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title"><span class="dot3"><i style="background:#fb7185"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i></span> workflow: vip-deposit-reward</div>
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="crmFail" class="danger"> Inject failure</label>
+          <button class="btn sm primary" id="crmRun">▶ Run workflow</button>
+        </div>
+      </div>
+      <div class="flow" id="crmFlow">
+        <div class="node"><span class="badge">retry</span><b>Trigger</b><small>player.deposit</small></div>
+        <div class="node"><span class="badge">retry</span><b>Condition</b><small>VIP tier ≥ 3</small></div>
+        <div class="node"><span class="badge" id="crmBadge">retry 1/3</span><b>Reward</b><small>grant bonus</small></div>
+        <div class="node"><span class="badge">retry</span><b>Notify</b><small>push · WS</small></div>
+        <div class="node"><span class="badge">retry</span><b>Complete</b><small>persist state</small></div>
+      </div>
+      <div class="log" id="crmLog"></div>
+      <div class="ws">
+        <canvas id="wsCanvas" width="640" height="150" aria-label="WebSocket connections visualisation"></canvas>
+        <div class="meter"><b id="wsCount">12,000</b><span>live WebSocket connections</span>
+          <input type="range" id="wsRange" min="1000" max="50000" step="1000" value="12000" aria-label="Connections">
+          <span id="wsMsg">≈ 3 gateway nodes</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TMS ================= -->
+<section class="project" id="tms">
+  <div class="wrap ph">
+    <div>
+      <div class="eyebrow" style="color:var(--cyan)">02 · Logistics</div>
+      <h2>TMS / WMS / Last-mile Delivery</h2>
+      <p class="desc">Backend for a multi-app logistics ecosystem — driver, shipper and admin apps — used by 15+ enterprises.</p>
+      <div class="chips"><span class="chip">Go</span><span class="chip">PHP</span><span class="chip">REST</span><span class="chip">WebSocket</span><span class="chip">GPS sync</span><span class="chip">Routing</span></div>
+      <ul>
+        <li>Automated order intake → routing → dispatch</li>
+        <li>Real-time GPS sync from driver apps; dynamic routing cut costs <b>15–20%</b></li>
+        <li>Barcode/QR scanning and proof-of-delivery uploads</li>
+        <li>1,000+ daily users across mobile and web</li>
+      </ul>
+      <div class="try">Try it: <b>click anywhere on the map</b> to create a delivery order and watch it get routed, dispatched and delivered.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title"><span class="dot3"><i style="background:#fb7185"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i></span> dispatch console · live</div>
+        <div class="controls">
+          <button class="btn sm" id="tmsRandom">+ Random order</button>
+          <button class="btn sm primary" id="tmsBurst">⚡ 5 orders</button>
+        </div>
+      </div>
+      <div class="tms">
+        <div class="map" id="tmsMap">
+          <svg viewBox="0 0 600 400" id="tmsSvg" aria-label="Delivery map">
+            <defs><pattern id="g" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#161f3d"/></pattern></defs>
+            <rect width="600" height="400" fill="url(#g)"/>
+            <path d="M0 250 C150 220 300 300 600 210" stroke="#18224a" stroke-width="18" fill="none"/>
+            <path d="M210 0 C240 140 180 260 260 400" stroke="#18224a" stroke-width="14" fill="none"/>
+            <g id="tmsRoutes"></g><g id="tmsPins"></g><g id="tmsTrucks"></g>
+            <rect x="72" y="292" width="40" height="34" rx="8" fill="#fbbf24"/>
+            <text x="92" y="314" text-anchor="middle" font-size="12" font-weight="800" fill="#0b1020" font-family="Inter,sans-serif">WH</text>
+          </svg>
+          <div class="hint">Click map to place an order</div>
+        </div>
+        <div class="orders" id="tmsOrders"><div style="color:var(--muted);font-size:12px;padding:6px">No orders yet.</div></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><b id="kOrders">0</b><span>orders created</span></div>
+        <div class="kpi"><b id="kTransit" style="color:var(--cyan)">0</b><span>in transit</span></div>
+        <div class="kpi"><b id="kDone" style="color:var(--green)">0</b><span>delivered (POD)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TICKET ================= -->
+<section class="project" id="ticket">
+  <div class="wrap ph">
+    <div>
+      <div class="eyebrow" style="color:var(--rose)">03 · Ticketing</div>
+      <h2>Booking Platform without Double-booking</h2>
+      <p class="desc">Customer booking app that stays correct when thousands of people try to grab the same seats at peak season.</p>
+      <div class="chips"><span class="chip">Go</span><span class="chip">Redis lock</span><span class="chip">Cache</span><span class="chip">Message queue</span></div>
+      <ul>
+        <li><b>Redis distributed lock</b> per seat: only one request can hold it</li>
+        <li>Caching absorbs read spikes on seat maps</li>
+        <li>Queue smooths write bursts during sales</li>
+      </ul>
+      <div class="try">Try it: turn <b>Redis lock OFF</b> and hit <b>Peak traffic</b> — see double-bookings appear. Turn it back on and they disappear.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title"><span class="dot3"><i style="background:#fb7185"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i></span> booking-service</div>
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="tkLock" checked> Redis lock</label>
+          <button class="btn sm" id="tkRace">⚔ 2 users, 1 seat</button>
+          <button class="btn sm primary" id="tkPeak">🔥 Peak traffic</button>
+          <button class="btn sm" id="tkReset">Reset</button>
+        </div>
+      </div>
+      <div class="stage">STAGE</div>
+      <div class="seats" id="tkSeats"></div>
+      <div class="legend">
+        <span><i style="background:#1e2748;border:1px solid #2b3560"></i>free</span>
+        <span><i style="background:var(--cyan)"></i>user A</span>
+        <span><i style="background:var(--violet)"></i>user B</span>
+        <span><i style="background:#3b2a6b"></i>other buyers</span>
+        <span><i style="background:var(--green)"></i>you (click a seat)</span>
+        <span><i style="background:var(--rose)"></i>double-booked!</span>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><b id="tkBooked" style="color:var(--green)">0</b><span>successful bookings</span></div>
+        <div class="kpi"><b id="tkRejected" style="color:var(--amber)">0</b><span>rejected safely</span></div>
+        <div class="kpi"><b id="tkDouble" style="color:var(--rose)">0</b><span>double-booked</span></div>
+      </div>
+      <div class="log" id="tkLog"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ERP ================= -->
+<section class="project" id="erp">
+  <div class="wrap ph">
+    <div>
+      <div class="eyebrow" style="color:var(--green)">04 · Manufacturing</div>
+      <h2>Seafood Manufacturing ERP</h2>
+      <p class="desc">Customised ERP for a seafood processor: every batch is tracked from intake to export, replacing manual paperwork.</p>
+      <div class="chips"><span class="chip">PHP</span><span class="chip">Laravel</span><span class="chip">MySQL</span><span class="chip">Docker</span></div>
+      <ul>
+        <li>Modules for intake, processing, QC, packing, cold storage and shipping</li>
+        <li><b>Batch traceability</b>: who handled what, when, and at which stage</li>
+        <li>QC failures routed back to rework automatically</li>
+      </ul>
+      <div class="try">Try it: receive batches and watch them move through the line. About 15% fail QC and go back for rework.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title"><span class="dot3"><i style="background:#fb7185"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i></span> production-line · plant 1</div>
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="erpAuto" checked> Auto intake</label>
+          <button class="btn sm primary" id="erpAdd">+ Receive batch</button>
+        </div>
+      </div>
+      <div class="line" id="erpLine"></div>
+      <div class="belt"></div>
+      <div class="kpis">
+        <div class="kpi"><b id="eIn">0 kg</b><span>received</span></div>
+        <div class="kpi"><b id="eCold" style="color:var(--cyan)">0 kg</b><span>in cold storage</span></div>
+        <div class="kpi"><b id="eShip" style="color:var(--green)">0 kg</b><span>shipped</span></div>
+      </div>
+      <div class="log" id="erpLog"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Built by Huynh Trong Nghia · Systems shown are simplified simulations of production work (code under NDA).<br>
+    <a href="https://github.com/htnghia27022002">github.com/htnghia27022002</a> · <a href="mailto:htnghia2702@gmail.com">htnghia2702@gmail.com</a>
+  </div>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = n => n.toLocaleString('en-US');
+
+function makeLog(el){
+  const t0 = performance.now();
+  return (msg, cls='') => {
+    const d = document.createElement('div');
+    const t = ((performance.now()-t0)/1000).toFixed(2).padStart(6,' ');
+    d.innerHTML = `<span class="t">${t}s</span><span class="${cls}">${msg}</span>`;
+    el.appendChild(d); el.scrollTop = el.scrollHeight;
+    while (el.children.length > 80) el.firstChild.remove();
+  };
+}
+
+/* ---------- hero typing ---------- */
+(() => {
+  const roles = ['Backend Engineer · Go / PHP','Distributed & real-time systems','Temporal · Kafka · NATS · ClickHouse','AI-augmented development'];
+  const el = $('#role'); let i = 0;
+  if (reduced){ el.textContent = roles[0]; return; }
+  (async function loop(){
+    for(;;){
+      const w = roles[i++ % roles.length];
+      for (let k=1;k<=w.length;k++){ el.textContent = w.slice(0,k); await sleep(45); }
+      await sleep(1600);
+      for (let k=w.length;k>=0;k--){ el.textContent = w.slice(0,k); await sleep(20); }
+      await sleep(250);
+    }
+  })();
+})();
+
+/* ---------- CRM workflow ---------- */
+(() => {
+  const nodes = [...document.querySelectorAll('#crmFlow .node')];
+  const log = makeLog($('#crmLog'));
+  const btn = $('#crmRun'), badge = $('#crmBadge');
+  const steps = ['TriggerActivity','EvaluateCondition','GrantRewardActivity','NotifyPlayerActivity','CompleteWorkflow'];
+  log('Temporal worker connected · task-queue=crm-flows','info');
+  btn.onclick = async () => {
+    btn.disabled = true;
+    nodes.forEach(n => n.className = 'node');
+    const id = 'wf-' + Math.random().toString(36).slice(2,8);
+    log(`WorkflowExecutionStarted  id=${id}`,'info');
+    for (let i=0;i<nodes.length;i++){
+      const n = nodes[i];
+      n.classList.add('active');
+      log(`ActivityTaskScheduled     ${steps[i]}`);
+      await sleep(650);
+      if (i === 2 && $('#crmFail').checked){
+        for (let a=1;a<=2;a++){
+          n.classList.remove('active'); n.classList.add('fail');
+          badge.textContent = `retry ${a}/3`;
+          log(`ActivityTaskFailed        ${steps[i]}: wallet-service timeout`,'err');
+          log(`  ↳ retry policy: backoff ${a}s (attempt ${a+1}/3)`,'warn');
+          await sleep(900);
+          n.classList.remove('fail'); n.classList.add('active');
+          await sleep(500);
+        }
+      }
+      n.classList.remove('active'); n.classList.add('done');
+      log(`ActivityTaskCompleted     ${steps[i]}`,'ok');
+    }
+    log(`WorkflowExecutionCompleted id=${id} ✓ reward delivered exactly once`,'ok');
+    btn.disabled = false;
+  };
+
+  /* WebSocket particles */
+  const cv = $('#wsCanvas'), ctx = cv.getContext('2d');
+  const range = $('#wsRange');
+  let parts = [];
+  const colors = ['#22d3ee','#818cf8','#c084fc','#34d399'];
+  function resize(){ const r = cv.getBoundingClientRect(); cv.width = r.width*devicePixelRatio; cv.height = r.height*devicePixelRatio; }
+  resize(); addEventListener('resize', resize);
+  function target(){ return Math.min(260, Math.round(range.value/180)); }
+  function spawn(){ return {x: Math.random()*cv.width*0.15, y: Math.random()*cv.height, v: 0.6+Math.random()*1.6, c: colors[Math.random()*4|0]}; }
+  function onRange(){
+    const n = +range.value;
+    $('#wsCount').textContent = fmt(n);
+    $('#wsMsg').textContent = `≈ ${Math.max(1,Math.ceil(n/5000))} gateway node${n>5000?'s':''} · NATS fan-out`;
+  }
+  range.oninput = onRange; onRange();
+  function frame(){
+    const W = cv.width, H = cv.height, d = devicePixelRatio;
+    ctx.clearRect(0,0,W,H);
+    const gws = Math.max(1,Math.ceil(range.value/5000));
+    const gx = W*0.82;
+    for (let g=0; g<Math.min(gws,6); g++){
+      const gy = H*(g+0.5)/Math.min(gws,6);
+      ctx.fillStyle = '#121a33'; ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.5*d;
+      ctx.beginPath(); ctx.roundRect(gx-14*d, gy-9*d, 28*d, 18*d, 5*d); ctx.fill(); ctx.stroke();
+    }
+    ctx.fillStyle='#94a0c6'; ctx.font = `${10*d}px Inter,sans-serif`;
+    ctx.fillText(gws>6?`${gws} gateways`:'gateways', gx-24*d, H-4*d);
+    while (parts.length < target()) parts.push(spawn());
+    if (parts.length > target()) parts.length = target();
+    for (const p of parts){
+      const gy = H*((Math.floor(p.y/H*Math.min(gws,6)))+0.5)/Math.min(gws,6);
+      p.x += p.v*d*(reduced?0:1.2);
+      p.y += (gy - p.y)*0.01*(reduced?0:1);
+      if (p.x > gx-14*d) Object.assign(p, spawn(), {x:0});
+      ctx.fillStyle = p.c; ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2*d, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ---------- TMS ---------- */
+(() => {
+  const svg = $('#tmsSvg'), NS = 'http://www.w3.org/2000/svg';
+  const routes = $('#tmsRoutes'), pins = $('#tmsPins'), trucks = $('#tmsTrucks'), list = $('#tmsOrders');
+  const depot = {x:92, y:309};
+  const colors = ['#22d3ee','#c084fc','#34d399','#818cf8','#fbbf24'];
+  let seq = 1000, stats = {orders:0, transit:0, done:0};
+  const labels = {created:'Created',routed:'Routed',dispatched:'Dispatched',transit:'In transit',delivered:'Delivered ✓'};
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  function updateKpi(){ $('#kOrders').textContent = stats.orders; $('#kTransit').textContent = stats.transit; $('#kDone').textContent = stats.done; }
+  function toSvg(evt){ const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+
+  async function createOrder(x, y){
+    if (list.firstElementChild && !list.firstElementChild.classList.contains('order')) list.innerHTML = '';
+    const id = 'ORD-' + (++seq), c = colors[seq % colors.length];
+    stats.orders++; updateKpi();
+    const pin = el('circle',{cx:x, cy:y, r:7, fill:c}); pins.appendChild(pin);
+    const ring = el('circle',{cx:x, cy:y, r:7, fill:'none', stroke:c, 'stroke-width':2}); pins.appendChild(ring);
+    ring.animate([{r:7, opacity:.9},{r:24, opacity:0}],{duration:1400, iterations:Infinity});
+    const row = document.createElement('div'); row.className='order';
+    row.innerHTML = `<span class="id" style="color:${c}">${id}</span><span class="eta" style="color:var(--muted)"></span><span class="st created">${labels.created}</span>`;
+    list.prepend(row);
+    const st = row.querySelector('.st'), eta = row.querySelector('.eta');
+    const set = s => { st.className = 'st ' + s; st.textContent = labels[s]; };
+
+    await sleep(600);
+    const mx = (depot.x + x)/2 + (Math.random()-.5)*160, my = (depot.y + y)/2 + (Math.random()-.5)*160;
+    const path = el('path',{d:`M${depot.x},${depot.y} Q${mx},${my} ${x},${y}`, fill:'none', stroke:c, 'stroke-width':3, 'stroke-dasharray':'7 7', opacity:.7, 'stroke-linecap':'round'});
+    routes.appendChild(path);
+    const len = path.getTotalLength();
+    set('routed'); eta.textContent = `${(len/40).toFixed(1)} km`;
+
+    await sleep(700); set('dispatched');
+    const truck = el('g',{});
+    truck.appendChild(el('rect',{x:-10,y:-6,width:14,height:12,rx:2,fill:c}));
+    truck.appendChild(el('rect',{x:4,y:-4,width:7,height:8,rx:2,fill:c,opacity:.8}));
+    trucks.appendChild(truck);
+
+    await sleep(500); set('transit'); stats.transit++; updateKpi();
+    const dur = reduced ? 300 : Math.max(2200, len*9);
+    const t0 = performance.now();
+    await new Promise(res => {
+      (function step(now){
+        const k = Math.min(1, (now - t0)/dur);
+        const p = path.getPointAtLength(k*len), q = path.getPointAtLength(Math.min(len, k*len + 1));
+        const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180/Math.PI;
+        truck.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${ang})`);
+        eta.textContent = `ETA ${Math.ceil((1-k)*dur/1000)}s`;
+        k < 1 ? requestAnimationFrame(step) : res();
+      })(t0);
+    });
+    set('delivered'); eta.textContent = 'POD ✓';
+    stats.transit--; stats.done++; updateKpi();
+    pin.setAttribute('fill', '#34d399'); ring.remove();
+    truck.remove();
+    path.animate([{opacity:.7},{opacity:0}],{duration:1200, fill:'forwards'}).onfinish = () => path.remove();
+    setTimeout(() => pin.remove(), 6000);
+  }
+  const rand = () => createOrder(160 + Math.random()*410, 30 + Math.random()*340);
+  $('#tmsMap').addEventListener('click', e => { const p = toSvg(e); createOrder(p.x, p.y); });
+  $('#tmsRandom').onclick = rand;
+  $('#tmsBurst').onclick = () => { for (let i=0;i<5;i++) setTimeout(rand, i*250); };
+  // seed so the map is alive on load
+  const io = new IntersectionObserver(es => { if (es[0].isIntersecting){ rand(); setTimeout(rand, 700); io.disconnect(); } });
+  io.observe($('#tmsMap'));
+})();
+
+/* ---------- Ticket ---------- */
+(() => {
+  const grid = $('#tkSeats'), log = makeLog($('#tkLog'));
+  const rows = 'ABCDE', cols = 10;
+  let seats = [], stat = {b:0, r:0, d:0};
+  function kpi(){ $('#tkBooked').textContent = stat.b; $('#tkRejected').textContent = stat.r; $('#tkDouble').textContent = stat.d; }
+  function build(){
+    grid.innerHTML = ''; seats = []; stat = {b:0,r:0,d:0}; kpi();
+    for (const r of rows) for (let c=1;c<=cols;c++){
+      const b = document.createElement('button'); b.className='seat'; b.textContent = r+c;
+      const s = {el:b, id:r+c, owner:null};
+      if (Math.random() < .22){ s.owner='other'; b.classList.add('taken'); }
+      b.onclick = () => book(s);
+      grid.appendChild(b); seats.push(s);
+    }
+  }
+  const locked = () => $('#tkLock').checked;
+  function book(s){
+    if (s.owner){ stat.r++; kpi(); log(`You → ${s.id}: rejected, seat already sold`,'warn'); return; }
+    s.owner='you'; s.el.className='seat you'; stat.b++; kpi(); log(`You → ${s.id}: booked ✓`,'ok');
+  }
+  $('#tkReset').onclick = () => { build(); log('Seat map reset','info'); };
+
+  $('#tkRace').onclick = async () => {
+    const free = seats.filter(s => !s.owner);
+    if (!free.length){ log('No free seats — press Reset','warn'); return; }
+    const s = free[Math.random()*free.length|0];
+    s.el.classList.add('target');
+    log(`User A & User B both request ${s.id} at t=0ms`,'info');
+    await sleep(500);
+    if (locked()){
+      log(`A: SET lock:${s.id} NX PX 5000 → OK`,'ok');
+      log(`B: SET lock:${s.id} NX PX 5000 → nil (held by A)`,'warn');
+      await sleep(500);
+      s.owner='a'; s.el.className='seat a'; stat.b++; stat.r++; kpi();
+      log(`A booked ${s.id} ✓ · B told to pick another seat`,'ok');
+    } else {
+      log(`A: SELECT status → free`); log(`B: SELECT status → free (stale read)`,'warn');
+      await sleep(500);
+      log(`A: UPDATE ${s.id} owner=A`); log(`B: UPDATE ${s.id} owner=B`);
+      s.owner='double'; s.el.className='seat double'; stat.b+=2; stat.d++; kpi();
+      log(`✕ ${s.id} sold twice! Two customers, one seat.`,'err');
+    }
+  };
+
+  $('#tkPeak').onclick = async () => {
+    const btn = $('#tkPeak'); btn.disabled = true;
+    const N = 60, lock = locked();
+    log(`Peak: ${N} concurrent requests · lock=${lock?'ON':'OFF'}`,'info');
+    const reqs = Array.from({length:N}, (_,i) => ({u:'u'+(i+1), s: seats[Math.random()*seats.length|0]}));
+    // without lock every request reads the snapshot before anyone writes
+    const snapshot = new Map(seats.map(s => [s, s.owner]));
+    for (const q of reqs){
+      const s = q.s;
+      if (lock){
+        if (s.owner){ stat.r++; }
+        else { s.owner = q.u; s.el.className = 'seat ' + (Math.random()<.5?'a':'b'); stat.b++; }
+      } else {
+        if (snapshot.get(s)){ stat.r++; }
+        else if (s.owner && s.owner !== 'double'){ s.owner='double'; s.el.className='seat double'; stat.b++; stat.d++; log(`✕ ${s.id} double-booked`,'err'); }
+        else if (s.owner === 'double'){ stat.b++; }
+        else { s.owner = q.u; s.el.className = 'seat ' + (Math.random()<.5?'a':'b'); stat.b++; }
+      }
+      kpi();
+      await sleep(reduced ? 0 : 35);
+    }
+    log(lock ? `Done: ${stat.d} double-bookings — lock serialised every seat ✓` : `Done: ${stat.d} seats sold more than once ✕`, lock ? 'ok' : 'err');
+    btn.disabled = false;
+  };
+  build();
+  log('booking-service ready · redis lock enabled','info');
+})();
+
+/* ---------- ERP ---------- */
+(() => {
+  const stages = [['Receiving','🐟'],['Processing','🔪'],['Quality check','🔬'],['Packing','📦'],['Cold storage','❄️'],['Shipping','🚚']];
+  const line = $('#erpLine'), log = makeLog($('#erpLog'));
+  const species = ['Shrimp','Pangasius','Tuna','Squid','Salmon'];
+  const boxes = stages.map(([n,ic]) => {
+    const d = document.createElement('div'); d.className='stg';
+    d.innerHTML = `<h4><span>${n}</span><em>${ic}</em></h4><div class="cnt">0 batches</div>`;
+    line.appendChild(d); return d;
+  });
+  let batches = [], seq = 0, kg = {in:0, cold:0, ship:0};
+  const fmtKg = v => fmt(v) + ' kg';
+  function render(){
+    boxes.forEach((b,i) => {
+      b.querySelectorAll('.tok').forEach(t => t.remove());
+      const here = batches.filter(x => x.stage === i);
+      b.querySelector('.cnt').textContent = `${here.length} batch${here.length===1?'':'es'}`;
+      here.slice(0,4).forEach(x => {
+        const t = document.createElement('div'); t.className = 'tok' + (x.rework ? ' rework' : '');
+        t.textContent = `${x.id}`; t.title = `${x.sp} · ${x.kg} kg`;
+        b.appendChild(t);
+      });
+    });
+    $('#eIn').textContent = fmtKg(kg.in); $('#eCold').textContent = fmtKg(kg.cold); $('#eShip').textContent = fmtKg(kg.ship);
+  }
+  function add(){
+    const b = {id:'B-' + String(++seq).padStart(3,'0'), kg: 200 + (Math.random()*60|0)*10, sp: species[Math.random()*species.length|0], stage:0, t:0, rework:false, qc:false};
+    batches.push(b); kg.in += b.kg;
+    log(`${b.id} received · ${b.sp} ${b.kg} kg`,'info'); render();
+  }
+  function tick(){
+    for (const b of batches){
+      b.t++;
+      const need = b.stage === 4 ? 4 : 2;
+      if (b.t < need) continue;
+      b.t = 0;
+      if (b.stage === 2 && !b.qc){
+        b.qc = true;
+        if (!b.rework && Math.random() < .15){ b.stage = 1; b.rework = true; log(`${b.id} QC failed (temperature) → rework`,'warn'); continue; }
+        log(`${b.id} QC passed ✓`,'ok');
+      }
+      if (b.stage === 1 && b.rework) b.qc = false;
+      b.stage++;
+      if (b.stage === 4){ kg.cold += b.kg; log(`${b.id} stored at −18 °C · lot ${b.id}-${b.sp.slice(0,3).toUpperCase()}`); }
+      if (b.stage === 5){ kg.cold -= b.kg; log(`${b.id} loaded for export`,'info'); }
+      if (b.stage === 6){ kg.ship += b.kg; b.done = true; log(`${b.id} shipped · ${b.kg} kg · traceable end-to-end`,'ok'); }
+    }
+    batches = batches.filter(b => !b.done);
+    render();
+  }
+  $('#erpAdd').onclick = add;
+  let n = 0;
+  setInterval(() => { tick(); if ($('#erpAuto').checked && ++n % 3 === 0 && batches.length < 14) add(); }, reduced ? 1500 : 900);
+  add(); add();
+})();
+</script>
+</body>
+</html>
