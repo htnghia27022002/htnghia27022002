@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" width="860" height="380" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05070d"/>
+      <stop offset="1" stop-color="#0b1a2e"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" x2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+    <linearGradient id="bar2" x1="0" x2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
+    <linearGradient id="bar3" x1="0" x2="1"><stop offset="0" stop-color="#e7e3da"/><stop offset="1" stop-color="#fb7185"/></linearGradient>
+    <g id="crate">
+      <rect x="-12" y="-9" width="24" height="18" rx="4"/>
+      <path d="M-12,-2 H12" stroke="#05070d" stroke-opacity="0.35" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect width="860" height="380" rx="18" fill="url(#bg)"/>
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#f5f6f8">Seafood Manufacturing ERP</text>
+  <text x="32" y="68" font-size="13" fill="#b4b1aa">PHP (Laravel) · Docker · Supply chain · Production · Inventory</text>
+  <text x="32" y="104" font-size="11" font-weight="600" fill="#34d399" letter-spacing="1.5">PRODUCTION LINE · END-TO-END TRACEABILITY</text>
+
+  <!-- stages -->
+  <g text-anchor="middle">
+    <g>
+      <rect x="36" y="116" width="110" height="68" rx="12" fill="#0f1522" stroke="#60a5fa" stroke-opacity="0.6"/>
+      <text x="91" y="142" font-size="18">🐟</text>
+      <text x="91" y="162" font-size="12" font-weight="700" fill="#f5f6f8">Receiving</text>
+      <text x="91" y="176" font-size="9.5" fill="#b4b1aa">raw material · kg</text>
+    </g>
+    <g>
+      <rect x="168" y="116" width="110" height="68" rx="12" fill="#0f1522" stroke="#3b82f6" stroke-opacity="0.6"/>
+      <text x="223" y="142" font-size="18">🔪</text>
+      <text x="223" y="162" font-size="12" font-weight="700" fill="#f5f6f8">Processing</text>
+      <text x="223" y="176" font-size="9.5" fill="#b4b1aa">fillet · freeze</text>
+    </g>
+    <g>
+      <rect x="300" y="116" width="110" height="68" rx="12" fill="#0f1522" stroke="#e7e3da" stroke-opacity="0.6">
+        <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <text x="355" y="142" font-size="18">🔬</text>
+      <text x="355" y="162" font-size="12" font-weight="700" fill="#f5f6f8">Quality check</text>
+      <text x="355" y="176" font-size="9.5" fill="#b4b1aa">pass · rework</text>
+    </g>
+    <g>
+      <rect x="432" y="116" width="110" height="68" rx="12" fill="#0f1522" stroke="#93c5fd" stroke-opacity="0.6"/>
+      <text x="487" y="142" font-size="18">📦</text>
+      <text x="487" y="162" font-size="12" font-weight="700" fill="#f5f6f8">Packing</text>
+      <text x="487" y="176" font-size="9.5" fill="#b4b1aa">label · batch code</text>
+    </g>
+    <g>
+      <rect x="564" y="116" width="110" height="68" rx="12" fill="#0f1522" stroke="#60a5fa" stroke-opacity="0.6"/>
+      <text x="619" y="142" font-size="18">❄️</text>
+      <text x="619" y="162" font-size="12" font-weight="700" fill="#f5f6f8">Cold storage</text>
+      <text x="619" y="176" font-size="9.5" fill="#b4b1aa">−18 °C · FIFO</text>
+    </g>
+    <g>
+      <rect x="696" y="116" width="110" height="68" rx="12" fill="#0f1522" stroke="#34d399" stroke-opacity="0.6"/>
+      <text x="751" y="142" font-size="18">🚚</text>
+      <text x="751" y="162" font-size="12" font-weight="700" fill="#f5f6f8">Shipping</text>
+      <text x="751" y="176" font-size="9.5" fill="#b4b1aa">export orders</text>
+    </g>
+  </g>
+
+  <!-- conveyor -->
+  <rect x="36" y="210" width="770" height="20" rx="10" fill="#0f1522" stroke="#1f2a3d"/>
+  <line x1="46" y1="220" x2="796" y2="220" stroke="#2a3850" stroke-width="2" stroke-dasharray="6 10">
+    <animate attributeName="stroke-dashoffset" values="32;0" dur="0.8s" repeatCount="indefinite"/>
+  </line>
+
+  <g>
+    <use href="#crate" fill="#60a5fa">
+      <animateMotion path="M50,206 L792,206" dur="8s" begin="-0s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#60a5fa;#60a5fa;#3b82f6;#3b82f6;#34d399" keyTimes="0;0.2;0.25;0.5;1" dur="8s" begin="-0s" repeatCount="indefinite"/>
+    </use>
+    <use href="#crate" fill="#60a5fa">
+      <animateMotion path="M50,206 L792,206" dur="8s" begin="-2s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#60a5fa;#60a5fa;#3b82f6;#3b82f6;#34d399" keyTimes="0;0.2;0.25;0.5;1" dur="8s" begin="-2s" repeatCount="indefinite"/>
+    </use>
+    <use href="#crate" fill="#60a5fa">
+      <animateMotion path="M50,206 L792,206" dur="8s" begin="-4s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#60a5fa;#60a5fa;#3b82f6;#3b82f6;#34d399" keyTimes="0;0.2;0.25;0.5;1" dur="8s" begin="-4s" repeatCount="indefinite"/>
+    </use>
+    <use href="#crate" fill="#60a5fa">
+      <animateMotion path="M50,206 L792,206" dur="8s" begin="-6s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#60a5fa;#60a5fa;#3b82f6;#3b82f6;#34d399" keyTimes="0;0.2;0.25;0.5;1" dur="8s" begin="-6s" repeatCount="indefinite"/>
+    </use>
+  </g>
+
+  <!-- dashboard -->
+  <g font-size="11" fill="#b4b1aa">
+    <rect x="36" y="252" width="246" height="84" rx="12" fill="#0b111c" stroke="#1f2a3d"/>
+    <text x="52" y="276">Cold storage utilisation</text>
+    <rect x="52" y="290" width="214" height="10" rx="5" fill="#1c2433"/>
+    <rect x="52" y="290" width="40" height="10" rx="5" fill="url(#bar1)">
+      <animate attributeName="width" values="40;176;176;40" keyTimes="0;0.6;0.9;1" dur="8s" repeatCount="indefinite"/>
+    </rect>
+    <text x="52" y="322" fill="#f5f6f8" font-size="12" font-weight="600">Real-time stock by batch</text>
+
+    <rect x="298" y="252" width="246" height="84" rx="12" fill="#0b111c" stroke="#1f2a3d"/>
+    <text x="314" y="276">Orders fulfilled today</text>
+    <rect x="314" y="290" width="214" height="10" rx="5" fill="#1c2433"/>
+    <rect x="314" y="290" width="20" height="10" rx="5" fill="url(#bar2)">
+      <animate attributeName="width" values="20;200;200;20" keyTimes="0;0.8;0.95;1" dur="8s" repeatCount="indefinite"/>
+    </rect>
+    <text x="314" y="322" fill="#f5f6f8" font-size="12" font-weight="600">Automated order → shipping flow</text>
+
+    <rect x="560" y="252" width="246" height="84" rx="12" fill="#0b111c" stroke="#1f2a3d"/>
+    <text x="576" y="276">Manual paperwork</text>
+    <rect x="576" y="290" width="214" height="10" rx="5" fill="#1c2433"/>
+    <rect x="576" y="290" width="200" height="10" rx="5" fill="url(#bar3)">
+      <animate attributeName="width" values="200;60;60;200" keyTimes="0;0.6;0.9;1" dur="8s" repeatCount="indefinite"/>
+    </rect>
+    <text x="576" y="322" fill="#f5f6f8" font-size="12" font-weight="600">Replaced by digital workflows</text>
+  </g>
+
+  <text x="32" y="362" font-size="12" fill="#b4b1aa">● Customised ERP modules for supply chain   ● Batch traceability from intake to export   ● Containerised with Docker</text>
+</svg>
