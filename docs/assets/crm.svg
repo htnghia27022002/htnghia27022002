@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" width="860" height="380" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05070d"/>
+      <stop offset="1" stop-color="#0d1526"/>
+    </linearGradient>
+    <linearGradient id="bus" x1="0" x2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#60a5fa"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="860" height="380" rx="18" fill="url(#bg)"/>
+  <text x="32" y="44" font-size="20" font-weight="700" fill="#f5f6f8">Gaming CRM · Real-time Workflow Platform</text>
+  <text x="32" y="68" font-size="13" fill="#b4b1aa">Go · Temporal · NATS · Kafka · WebSocket · ClickHouse · PostgreSQL</text>
+
+  <!-- ===== Temporal workflow ===== -->
+  <text x="32" y="108" font-size="11" font-weight="600" fill="#3b82f6" letter-spacing="1.5">TEMPORAL WORKFLOW · FAULT-TOLERANT</text>
+  <line x1="100" y1="153" x2="760" y2="153" stroke="#2a3850" stroke-width="2" stroke-dasharray="4 6"/>
+
+  <circle r="6" fill="#60a5fa" filter="url(#glow)">
+    <animateMotion path="M100,153 L760,153" dur="6s" repeatCount="indefinite"
+      calcMode="linear" keyPoints="0;0.25;0.5;0.5;0.75;1" keyTimes="0;0.15;0.3;0.6;0.8;1"/>
+  </circle>
+
+  <g font-size="13" font-weight="700" fill="#f5f6f8" text-anchor="middle">
+    <!-- Trigger -->
+    <rect x="44" y="125" width="112" height="56" rx="12" fill="#0f1522" stroke="#2a3850" stroke-width="2">
+      <animate attributeName="stroke" values="#60a5fa;#60a5fa;#2a3850;#2a3850" keyTimes="0;0.06;0.09;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="100" y="150">Trigger</text>
+    <text x="100" y="168" font-size="10" font-weight="400" fill="#b4b1aa">player.deposit</text>
+
+    <!-- Condition -->
+    <rect x="209" y="125" width="112" height="56" rx="12" fill="#0f1522" stroke="#2a3850" stroke-width="2">
+      <animate attributeName="stroke" values="#2a3850;#2a3850;#60a5fa;#60a5fa;#2a3850;#2a3850" keyTimes="0;0.14;0.15;0.22;0.24;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="265" y="150">Condition</text>
+    <text x="265" y="168" font-size="10" font-weight="400" fill="#b4b1aa">VIP tier ≥ 3</text>
+
+    <!-- Reward (fails, retries, recovers) -->
+    <rect x="374" y="125" width="112" height="56" rx="12" fill="#0f1522" stroke="#2a3850" stroke-width="2">
+      <animate attributeName="stroke" values="#2a3850;#2a3850;#fb7185;#fb7185;#34d399;#34d399;#2a3850;#2a3850" keyTimes="0;0.29;0.3;0.44;0.45;0.6;0.63;1" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#0f1522;#0f1522;#3a1424;#3a1424;#0f3328;#0f3328;#0f1522;#0f1522" keyTimes="0;0.29;0.3;0.44;0.45;0.6;0.63;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="430" y="150">Reward</text>
+    <text x="430" y="168" font-size="10" font-weight="400" fill="#b4b1aa">grant bonus</text>
+
+    <!-- Notify -->
+    <rect x="539" y="125" width="112" height="56" rx="12" fill="#0f1522" stroke="#2a3850" stroke-width="2">
+      <animate attributeName="stroke" values="#2a3850;#2a3850;#60a5fa;#60a5fa;#2a3850;#2a3850" keyTimes="0;0.79;0.8;0.87;0.89;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="595" y="150">Notify</text>
+    <text x="595" y="168" font-size="10" font-weight="400" fill="#b4b1aa">push · WebSocket</text>
+
+    <!-- Done -->
+    <rect x="704" y="125" width="112" height="56" rx="12" fill="#0f1522" stroke="#2a3850" stroke-width="2">
+      <animate attributeName="stroke" values="#2a3850;#2a3850;#34d399;#34d399" keyTimes="0;0.95;0.97;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="760" y="150">Completed</text>
+    <text x="760" y="168" font-size="10" font-weight="400" fill="#b4b1aa">state persisted</text>
+  </g>
+
+  <g font-size="11" font-weight="600" text-anchor="middle">
+    <text x="430" y="202" fill="#fb7185" opacity="0">⟳ activity failed · retry 1/3
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.3;0.31;0.43;0.45;1" dur="6s" repeatCount="indefinite"/>
+    </text>
+    <text x="430" y="202" fill="#34d399" opacity="0">✓ recovered automatically
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.45;0.46;0.6;0.63;1" dur="6s" repeatCount="indefinite"/>
+    </text>
+  </g>
+
+  <!-- ===== Event stream + fan-out ===== -->
+  <text x="32" y="240" font-size="11" font-weight="600" fill="#3b82f6" letter-spacing="1.5">EVENT STREAM → REAL-TIME FAN-OUT</text>
+  <text x="44" y="276" font-size="11" fill="#b4b1aa">NATS · Kafka event bus</text>
+  <line x1="44" y1="292" x2="520" y2="292" stroke="url(#bus)" stroke-width="3" opacity="0.55" stroke-linecap="round"/>
+
+  <g filter="url(#glow)">
+    <rect width="14" height="8" rx="3" x="-7" y="-4" fill="#3b82f6"><animateMotion path="M44,292 L520,292" dur="2.4s" begin="-0s" repeatCount="indefinite"/></rect>
+    <rect width="14" height="8" rx="3" x="-7" y="-4" fill="#60a5fa"><animateMotion path="M44,292 L520,292" dur="2.4s" begin="-0.6s" repeatCount="indefinite"/></rect>
+    <rect width="14" height="8" rx="3" x="-7" y="-4" fill="#e7e3da"><animateMotion path="M44,292 L520,292" dur="2.4s" begin="-1.2s" repeatCount="indefinite"/></rect>
+    <rect width="14" height="8" rx="3" x="-7" y="-4" fill="#93c5fd"><animateMotion path="M44,292 L520,292" dur="2.4s" begin="-1.8s" repeatCount="indefinite"/></rect>
+  </g>
+
+  <path d="M520,292 C530,292 530,268 545,268" fill="none" stroke="#2a3850" stroke-width="2"/>
+  <path d="M520,292 C530,292 530,318 545,318" fill="none" stroke="#2a3850" stroke-width="2"/>
+
+  <g font-size="12" font-weight="600" fill="#f5f6f8">
+    <rect x="545" y="252" width="140" height="32" rx="9" fill="#0f1522" stroke="#e7e3da" stroke-opacity="0.7"/>
+    <text x="558" y="273">▤ ClickHouse</text>
+    <rect x="545" y="302" width="140" height="32" rx="9" fill="#0f1522" stroke="#60a5fa" stroke-opacity="0.7"/>
+    <text x="558" y="323">⇄ WS Gateway ×N</text>
+  </g>
+
+  <circle cx="685" cy="318" r="4" fill="none" stroke="#60a5fa" stroke-width="2">
+    <animate attributeName="r" values="4;46" dur="1.8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="685" cy="318" r="4" fill="none" stroke="#60a5fa" stroke-width="2">
+    <animate attributeName="r" values="4;46" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+  </circle>
+
+  <text x="730" y="268" font-size="11" fill="#b4b1aa">10K+ live players</text>
+  <g fill="#60a5fa">
+    <circle cx="738" cy="290" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0s" repeatCount="indefinite"/></circle>
+    <circle cx="758" cy="290" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.3s" repeatCount="indefinite"/></circle>
+    <circle cx="778" cy="290" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.6s" repeatCount="indefinite"/></circle>
+    <circle cx="798" cy="290" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.9s" repeatCount="indefinite"/></circle>
+    <circle cx="818" cy="290" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="1.2s" repeatCount="indefinite"/></circle>
+    <circle cx="748" cy="308" r="4" fill="#3b82f6"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.2s" repeatCount="indefinite"/></circle>
+    <circle cx="768" cy="308" r="4" fill="#3b82f6"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.5s" repeatCount="indefinite"/></circle>
+    <circle cx="788" cy="308" r="4" fill="#3b82f6"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.8s" repeatCount="indefinite"/></circle>
+    <circle cx="808" cy="308" r="4" fill="#3b82f6"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="1.1s" repeatCount="indefinite"/></circle>
+    <circle cx="738" cy="326" r="4" fill="#93c5fd"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.4s" repeatCount="indefinite"/></circle>
+    <circle cx="758" cy="326" r="4" fill="#93c5fd"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.7s" repeatCount="indefinite"/></circle>
+    <circle cx="778" cy="326" r="4" fill="#93c5fd"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="1s" repeatCount="indefinite"/></circle>
+    <circle cx="798" cy="326" r="4" fill="#93c5fd"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="1.3s" repeatCount="indefinite"/></circle>
+    <circle cx="818" cy="326" r="4" fill="#93c5fd"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.1s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <text x="32" y="362" font-size="12" fill="#b4b1aa">● Long-running workflows with auto-retry   ● Node-based runtime flow builder   ● Real-time analytics under heavy read/write</text>
+</svg>

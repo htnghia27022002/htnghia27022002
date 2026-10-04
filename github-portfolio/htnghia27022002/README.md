@@ -3,9 +3,9 @@
 </p>
 
 <p align="center">
-  <a href="https://htnghia27022002.github.io/htnghia27022002/"><img src="https://img.shields.io/badge/Play_3D_Portfolio-2563eb?style=for-the-badge&logo=githubpages&logoColor=white" alt="Portfolio"></a>
+  <a href="https://htnghia27022002.github.io"><img src="https://img.shields.io/badge/Interactive_Portfolio-818cf8?style=for-the-badge&logo=githubpages&logoColor=white" alt="Portfolio"></a>
   <a href="https://linkedin.com/in/nghiahuynh"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-  <a href="mailto:htnghia2702@gmail.com"><img src="https://img.shields.io/badge/Email-3b82f6?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
+  <a href="mailto:htnghia2702@gmail.com"><img src="https://img.shields.io/badge/Email-22d3ee?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
 </p>
 
 ## 👋 About me
@@ -36,11 +36,11 @@
 ## 🚀 Featured projects
 
 > Production systems built at previous companies. Code is private (NDA); the visuals show the architecture, not proprietary details.
-> Click any diagram to open its **interactive prototype**, or [fly through the 3D city](https://htnghia27022002.github.io/htnghia27022002/) to find them.
+> Click any diagram to open its **interactive demo**.
 
 ### 🎮 Gaming CRM · Real-time Workflow Platform
 
-<a href="https://htnghia27022002.github.io/htnghia27022002/#crm"><img src="./assets/crm.svg" alt="Gaming CRM workflow animation" width="100%"></a>
+<a href="https://htnghia27022002.github.io/#crm"><img src="./assets/crm.svg" alt="Gaming CRM workflow animation" width="100%"></a>
 
 - Stateful workflow engine on **Temporal**: long-running CRM flows with automatic retry and recovery
 - **WebSocket cluster** in Go serving tens of thousands of concurrent player connections
@@ -48,7 +48,7 @@
 
 ### 🚚 Logistics Platform · TMS / WMS / Last-mile
 
-<a href="https://htnghia27022002.github.io/htnghia27022002/#tms"><img src="./assets/tms.svg" alt="Logistics platform animation" width="100%"></a>
+<a href="https://htnghia27022002.github.io/#tms"><img src="./assets/tms.svg" alt="Logistics platform animation" width="100%"></a>
 
 - Backend for driver, shipper and admin apps used by **15+ enterprises**
 - Real-time GPS sync and dynamic routing that cut client operating costs by **15–20%**
@@ -56,14 +56,14 @@
 
 ### 🎟️ Ticketing & Booking Platform
 
-<a href="https://htnghia27022002.github.io/htnghia27022002/#ticket"><img src="./assets/ticket.svg" alt="Booking concurrency animation" width="100%"></a>
+<a href="https://htnghia27022002.github.io/#ticket"><img src="./assets/ticket.svg" alt="Booking concurrency animation" width="100%"></a>
 
 - Booking APIs with **Redis locks**, caching and message queues
 - No double-booking and stable uptime through peak-season traffic
 
 ### 🐟 Seafood Manufacturing ERP
 
-<a href="https://htnghia27022002.github.io/htnghia27022002/#erp"><img src="./assets/erp.svg" alt="ERP production line animation" width="100%"></a>
+<a href="https://htnghia27022002.github.io/#erp"><img src="./assets/erp.svg" alt="ERP production line animation" width="100%"></a>
 
 - Extended ERP modules in **Laravel** + Docker for intake, processing, QC, packing, cold storage and shipping
 - Batch traceability and digital workflows replacing manual paperwork

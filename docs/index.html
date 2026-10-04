@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Packet Runner · Huynh Trong Nghia</title>
+<meta name="description" content="Backend Engineer (Go / PHP). Walk through a 3D server city and open interactive prototypes of real systems.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: full-bleed 3D game on top, bento grid + project cards below, prototypes open as modal windows. */
+:root{
+  color-scheme:dark;
+  --bg:#05070d; --bg2:#0b1019; --panel:#0f1522; --line:#1f2a3d; --line2:#2a3850;
+  --text:#f5f6f8; --muted:#b4b1aa;
+  --indigo:#3b82f6; --milk:#d8d4cb; --cyan:#60a5fa; --green:#34d399; --amber:#e7e3da; --rose:#fb7185; --violet:#93c5fd;
+  --display:"Unbounded","Segoe UI",system-ui,sans-serif;
+  --body:"Manrope","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 var(--body);overflow-x:hidden}
+a{color:inherit}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+.eyebrow{font:600 11px var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+/* ===== Game ===== */
+#game{position:relative;height:min(86vh,820px);min-height:520px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#0f1a33 0%,var(--bg) 70%)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.hud{position:absolute;pointer-events:none;z-index:2}
+.hud-top{top:calc(14px + env(safe-area-inset-top,0px));left:16px;right:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.brand h1{font-size:clamp(20px,3.4vw,34px);font-weight:800;letter-spacing:.5px;background:linear-gradient(90deg,#ffffff 0%,#d8d4cb 45%,#60a5fa 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.brand .role{color:var(--text);font-weight:600}
+.hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#minimap{width:150px;height:150px;border-radius:16px;background:rgba(9,13,30,.75);border:1px solid var(--line2);backdrop-filter:blur(6px)}
+.score{white-space:nowrap;font:600 12px var(--mono);background:rgba(9,13,30,.75);border:1px solid var(--line2);padding:6px 10px;border-radius:999px;color:var(--amber);font-variant-numeric:tabular-nums}
+.hint{left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font:500 12px var(--mono);color:var(--muted);background:rgba(9,13,30,.75);border:1px solid var(--line);padding:8px 14px;border-radius:999px;white-space:nowrap;transition:opacity .4s}
+.hint kbd{font:600 11px var(--mono);border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:0 5px;color:var(--text)}
+.skip{position:absolute;z-index:3;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));pointer-events:auto;font:600 12px var(--body);color:var(--text);text-decoration:none;background:rgba(9,13,30,.75);border:1px solid var(--line2);padding:8px 14px;border-radius:999px}
+.skip:hover{border-color:var(--cyan)}
+
+.zone-card{position:absolute;z-index:3;left:50%;bottom:calc(68px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);width:min(440px,calc(100% - 32px));background:rgba(14,20,40,.92);border:1px solid var(--zc,var(--line2));border-radius:var(--radius);padding:16px 18px;backdrop-filter:blur(10px);box-shadow:0 20px 60px -20px var(--zc,#000);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.zone-card.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.zone-card h3{font-size:18px;margin:2px 0 4px}
+.zone-card p{margin:0 0 10px;color:var(--muted);font-size:13px}
+.zone-card .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 11px var(--mono);padding:3px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--panel);color:var(--text);padding:9px 16px;border-radius:999px;font:700 13px var(--body);cursor:pointer;text-decoration:none;transition:transform .15s,border-color .15s}
+.btn:hover{transform:translateY(-1px);border-color:var(--indigo)}
+.btn.primary{background:linear-gradient(90deg,#2563eb,#60a5fa);border-color:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.sm{padding:6px 13px;font-size:12px}
+.nogl #gl{display:none}
+.nogl .nogl-msg{display:flex}
+.nogl-msg{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:20px}
+.toast{position:absolute;z-index:4;top:42%;left:50%;transform:translate(-50%,-50%);font:700 clamp(16px,3vw,24px) var(--display);text-align:center;color:var(--amber);text-shadow:0 0 30px rgba(96,165,250,.5);pointer-events:none;opacity:0;transition:opacity .4s}
+.toast.show{opacity:1}
+
+/* ===== Bento ===== */
+section{padding-block:72px}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.sec-head h2{font-size:clamp(22px,3vw,32px)}
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.tile{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;min-width:0}
+.tile::before{content:"";position:absolute;inset:0;background:radial-gradient(400px circle at var(--mx,50%) var(--my,50%),rgba(59,130,246,.16),transparent 45%);opacity:0;transition:opacity .3s;pointer-events:none}
+.tile:hover::before{opacity:1}
+.t-about{grid-column:span 4}
+.t-stat{grid-column:span 1;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.t-stat b{font:800 clamp(22px,2.6vw,30px) var(--display)}
+.t-stat span{font-size:12px;color:var(--muted)}
+.t-stack{grid-column:span 3}
+.t-ai{grid-column:span 3}
+.t-contact{grid-column:span 6;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.tile h3{font-size:15px;margin-bottom:10px}
+.tile p{margin:0;color:var(--muted)}
+.about-lead{font:600 clamp(17px,2vw,21px)/1.45 var(--body);color:var(--text)!important;margin-bottom:10px!important}
+.stack-row{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--line)}
+.stack-row:last-child{border-bottom:0}
+.stack-row span{font:600 11px var(--mono);color:var(--muted);min-width:96px;text-transform:uppercase;letter-spacing:1px}
+.stack-row div{font-size:13px}
+.copy{font:600 13px var(--mono);background:var(--bg2);border:1px solid var(--line2);padding:8px 12px;border-radius:10px;user-select:all}
+
+.projects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,border-color .25s;transform-style:preserve-3d}
+.pcard:hover{border-color:var(--pc)}
+.pcard img{display:block;width:100%;height:auto;aspect-ratio:860/380;max-width:100%}
+.pcard .body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.pcard h3{font-size:17px}
+.pcard p{margin:0;color:var(--muted);font-size:14px}
+.pcard .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto}
+
+footer{padding-block:40px 56px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+
+/* ===== Prototype dialogs ===== */
+dialog.proto{width:min(1120px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid var(--line2);border-radius:20px;background:var(--bg);color:var(--text);overflow:auto;box-shadow:0 40px 120px -20px rgba(0,0,0,.8)}
+dialog.proto::backdrop{background:rgba(4,6,14,.72);backdrop-filter:blur(6px)}
+dialog.proto[open]{animation:pop-in .3s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop-in{from{transform:perspective(900px) rotateX(12deg) translateY(30px) scale(.94);opacity:0}}
+.chrome{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(14,20,40,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.chrome .dots{display:flex;gap:6px}.chrome .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.chrome .url{flex:1;min-width:0;font:500 12px var(--mono);color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chrome .close{background:none;border:1px solid var(--line2);color:var(--text);border-radius:8px;padding:4px 10px;cursor:pointer;font:600 12px var(--body)}
+.ph{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:28px;padding:24px}
+.ph h2{font-size:clamp(20px,2.6vw,28px);margin:8px 0 10px}
+.ph .desc{color:var(--muted);margin:0 0 14px}
+.ph ul{padding-left:18px;margin:12px 0 0}
+.ph li{margin:5px 0;font-size:14px}
+.ph li b{color:var(--cyan)}
+.try{margin-top:16px;font-size:13px;color:var(--muted);border:1px dashed var(--line2);padding:8px 12px;border-radius:10px}
+.demo{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+.demo-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.demo-head .title{font:500 12px var(--mono);color:var(--muted)}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line2);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.toggle input::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--text);transition:left .2s}
+.toggle input:checked{background:var(--green)}
+.toggle input:checked::after{left:17px}
+.toggle input.danger:checked{background:var(--rose)}
+.log{margin-top:12px;background:#05070d;border:1px solid var(--line);border-radius:12px;padding:10px 12px;height:130px;overflow:auto;font:12px/1.6 var(--mono);color:var(--muted)}
+.log div{white-space:nowrap}
+.log .t{color:#6b7280;margin-right:8px}
+.log .ok{color:var(--green)} .log .err{color:var(--rose)} .log .info{color:var(--cyan)} .log .warn{color:var(--amber)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.kpi{background:#05070d;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi b{font:700 20px var(--display);font-variant-numeric:tabular-nums;display:block}
+.kpi span{font-size:11px;color:var(--muted)}
+
+/* CRM */
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:relative;padding:8px 0 4px}
+.flow::before{content:"";position:absolute;left:8%;right:8%;top:42px;border-top:2px dashed var(--line2)}
+.node{position:relative;background:var(--bg2);border:2px solid var(--line2);border-radius:14px;padding:12px 6px;text-align:center;transition:all .25s}
+.node b{display:block;font-size:13px}
+.node small{color:var(--muted);font-size:11px}
+.node .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--rose);color:var(--bg);opacity:0;transition:opacity .2s;white-space:nowrap}
+.node.active{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.15),0 0 24px rgba(34,211,238,.35)}
+.node.done{border-color:var(--green)}
+.node.fail{border-color:var(--rose);background:#3a1424;animation:shake .35s}
+.node.fail .badge{opacity:1}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.ws{margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.ws canvas{width:100%;height:140px;background:#05070d;border:1px solid var(--line);border-radius:12px;display:block}
+.ws .meter{min-width:150px}
+.ws .meter b{font:700 26px var(--display);color:var(--cyan);font-variant-numeric:tabular-nums}
+.ws .meter span{display:block;font-size:12px;color:var(--muted)}
+input[type=range]{accent-color:var(--cyan);width:100%}
+
+/* TMS */
+.tms{display:grid;grid-template-columns:1.5fr 1fr;gap:12px}
+.map{position:relative;background:#05070d;border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:crosshair}
+.map svg{display:block;width:100%;height:auto}
+.map .hint2{position:absolute;left:10px;bottom:8px;font-size:11px;color:var(--muted);pointer-events:none}
+.orders{background:#05070d;border:1px solid var(--line);border-radius:12px;padding:8px;max-height:330px;overflow:auto;min-width:0}
+.order{display:flex;flex-wrap:wrap;row-gap:2px;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--bg2);margin-bottom:6px;font-size:12px}
+.order .id{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.order .eta{order:3;width:100%;font-size:11px;color:var(--muted)}
+.st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.st.created{background:#1c2433;color:var(--muted)}
+.st.routed{background:rgba(129,140,248,.18);color:var(--indigo)}
+.st.dispatched{background:rgba(192,132,252,.18);color:var(--violet)}
+.st.transit{background:rgba(34,211,238,.18);color:var(--cyan)}
+.st.delivered{background:rgba(52,211,153,.18);color:var(--green)}
+
+/* Ticket */
+.stage{text-align:center;font:600 11px var(--mono);letter-spacing:3px;color:var(--muted);background:linear-gradient(90deg,transparent,rgba(96,165,250,.25),transparent);border-radius:999px;padding:4px;margin-bottom:12px}
+.seats{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+.seat{aspect-ratio:1;max-width:100%;border-radius:8px;border:1px solid var(--line2);background:#1c2433;color:var(--muted);font:600 10px var(--body);cursor:pointer;padding:0;transition:transform .15s,background .2s}
+.seat:hover{transform:scale(1.08)}
+.seat.a{background:var(--cyan);color:var(--bg);border-color:transparent}
+.seat.b{background:var(--violet);color:var(--bg);border-color:transparent}
+.seat.you{background:var(--green);color:var(--bg);border-color:transparent}
+.seat.taken{background:#3a4456;color:#c9ccd3;border-color:transparent}
+.seat.double{background:var(--rose);color:var(--text);animation:shake .35s 3}
+.seat.target{outline:3px solid var(--amber);outline-offset:1px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ERP */
+.line{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.stg{min-width:0;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:10px 6px;min-height:140px;display:flex;flex-direction:column;gap:6px}
+.stg h4{margin:0;font-size:11px;line-height:1.2;display:flex;justify-content:space-between;align-items:center;gap:4px}
+.stg h4 em{font-style:normal;font-size:15px}
+.stg .cnt{font-size:10px;color:var(--muted)}
+.tok{font:600 10px var(--mono);padding:4px 5px;border-radius:6px;background:rgba(34,211,238,.15);color:var(--cyan);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tok.rework{background:rgba(251,191,36,.18);color:var(--amber)}
+.belt{height:10px;margin-top:10px;border-radius:999px;background:repeating-linear-gradient(90deg,#1c2433 0 12px,#0f1522 12px 24px);animation:belt .6s linear infinite}
+@keyframes belt{to{background-position:24px 0}}
+
+@media (max-width:900px){
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .t-about,.t-stack,.t-ai,.t-contact{grid-column:span 2}
+  .projects{grid-template-columns:1fr}
+  .ph{grid-template-columns:1fr;padding:16px}
+  .tms{grid-template-columns:1fr}
+  .line{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .node small{display:none}
+  .ws{grid-template-columns:1fr}
+  .seats{grid-template-columns:repeat(8,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .hint{left:16px;transform:none;white-space:normal;max-width:calc(100% - 170px)}
+}
+@media (max-width:600px){
+  #minimap{width:96px;height:96px}
+  .brand p{font-size:12px}
+  .hint{font-size:10px;bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  .hint .desk{display:none}
+  .zone-card{bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+}
+@media (hover:none){ .hint .desk{display:none} }
+@media (hover:hover){ .hint .touch{display:none} }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 3D GAME ================= -->
+<header id="game">
+  <canvas id="gl" aria-label="3D server city. Walk the avatar into a project zone to open its prototype."></canvas>
+  <div class="nogl-msg">Your browser can't run WebGL, so the 3D city is off. Scroll down to see every project.</div>
+
+  <div class="hud hud-top">
+    <div class="brand">
+      <h1>HUYNH TRONG NGHIA</h1>
+      <p><span class="role">Backend Engineer · Go / PHP</span> — distributed &amp; real-time systems</p>
+    </div>
+    <div class="hud-right">
+      <canvas id="minimap" width="300" height="300" aria-label="Minimap"></canvas>
+      <div class="score" id="score">Events processed 0 / 12</div>
+    </div>
+  </div>
+
+  <div class="hud hint" id="hint">
+    <span class="desk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · <kbd>Shift</kbd> run · click the ground to go · <kbd>E</kbd> open project</span>
+    <span class="touch">Tap the ground to walk there · tap the card to open a project</span>
+  </div>
+  <a class="skip" href="#about">Skip the game ↓</a>
+
+  <div class="zone-card" id="zoneCard" role="status" aria-live="polite">
+    <div class="eyebrow" id="zcEye">Zone</div>
+    <h3 id="zcTitle">Project</h3>
+    <p id="zcLine"></p>
+    <div class="row">
+      <div class="chips" id="zcChips"></div>
+      <button class="btn primary sm" id="zcOpen">Open prototype <span class="desk">(E)</span></button>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</header>
+
+<!-- ================= BENTO ================= -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Profile</div><h2>Backend systems that stay up under load</h2></div>
+    </div>
+    <div class="bento">
+      <div class="tile t-about">
+        <p class="about-lead">3.5+ years building distributed, real-time backends in Go and PHP — from workflow engines and WebSocket clusters to logistics and booking APIs.</p>
+        <p>I run Temporal, Kafka, NATS and ClickHouse in production, ship with Docker and CI/CD, watch services with Grafana and Graylog, and use AI agents to deliver faster. Open to Backend / Platform Engineer roles.</p>
+      </div>
+      <div class="tile t-stat"><span>WebSocket</span><b style="color:var(--cyan)">10K+</b><span>concurrent connections</span></div>
+      <div class="tile t-stat"><span>Logistics</span><b style="color:var(--text)">−15–20%</b><span>client operating cost</span></div>
+
+      <div class="tile t-stack">
+        <h3>Stack</h3>
+        <div class="stack-row"><span>Languages</span><div>Go (Gin) · PHP (Laravel) · Python · TypeScript (NestJS)</div></div>
+        <div class="stack-row"><span>Messaging</span><div>Temporal · gRPC/Protobuf · Kafka · NATS · Redis Pub/Sub · WebSocket</div></div>
+        <div class="stack-row"><span>Data</span><div>PostgreSQL · MySQL · ClickHouse · Redis</div></div>
+        <div class="stack-row"><span>DevOps</span><div>Docker · GitHub Actions · GitLab CI · Linux VPS · Cloudflare · Grafana · Graylog</div></div>
+        <div class="stack-row"><span>Testing</span><div>Go testing · Testify · integration tests · PHPUnit</div></div>
+      </div>
+      <div class="tile t-ai">
+        <h3>AI in my workflow</h3>
+        <p>LLM features built on the OpenAI, Claude and Gemini APIs. Day to day I work with Claude Code and Cursor agents, with custom skills and rules, for faster delivery and code review.</p>
+        <div class="chips" style="margin-top:14px"><span class="chip">LLM integration</span><span class="chip">Prompt engineering</span><span class="chip">AI agents</span><span class="chip">Claude Code</span><span class="chip">Cursor</span></div>
+      </div>
+      <div class="tile t-stat" style="grid-column:span 2"><span>Logistics clients</span><b style="color:var(--violet)">15+</b><span>enterprises on one platform</span></div>
+      <div class="tile t-stat" style="grid-column:span 2"><span>Workflows</span><b style="color:var(--indigo)">0</b><span>lost rewards — Temporal retries every failed step</span></div>
+      <div class="tile t-stat" style="grid-column:span 2"><span>Booking</span><b style="color:var(--milk)">0</b><span>double-bookings at peak, thanks to Redis locks</span></div>
+
+      <div class="tile t-contact">
+        <div><h3 style="margin:0 0 4px">Let's talk</h3><p>Ho Chi Minh City, Vietnam · open to remote</p></div>
+        <div class="controls">
+          <span class="copy" id="mail">htnghia2702@gmail.com</span>
+          <button class="btn sm" id="copyMail">Copy email</button>
+          <a class="btn sm" href="https://linkedin.com/in/nghiahuynh" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a class="btn sm" href="https://github.com/htnghia27022002" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECT CARDS ================= -->
+<section id="projects" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Prototypes</div><h2>Four systems, four playable prototypes</h2></div>
+      <p style="margin:0;color:var(--muted);max-width:420px;font-size:14px">Production work under NDA. Each prototype simulates the architecture and the failure it was built to survive.</p>
+    </div>
+    <div class="projects">
+      <article class="pcard" style="--pc:var(--indigo)">
+        <img src="assets/crm.svg" alt="Animated diagram of the Gaming CRM workflow" loading="lazy">
+        <div class="body"><h3>Gaming CRM · Real-time Workflow Platform</h3><p>Temporal workflows that survive failures, plus a WebSocket cluster pushing live events to players.</p>
+          <div class="row"><div class="chips"><span class="chip">Go</span><span class="chip">Temporal</span><span class="chip">Kafka</span></div><button class="btn primary sm" data-open="crm">Open prototype</button></div></div>
+      </article>
+      <article class="pcard" style="--pc:var(--cyan)">
+        <img src="assets/tms.svg" alt="Animated map of the logistics platform" loading="lazy">
+        <div class="body"><h3>Logistics · TMS / WMS / Last-mile</h3><p>Order intake, routing, dispatch and proof of delivery for 15+ enterprises, with live GPS.</p>
+          <div class="row"><div class="chips"><span class="chip">Go</span><span class="chip">PHP</span><span class="chip">WebSocket</span></div><button class="btn primary sm" data-open="tms">Open prototype</button></div></div>
+      </article>
+      <article class="pcard" style="--pc:var(--text)">
+        <img src="assets/ticket.svg" alt="Animated diagram of two users racing for one seat" loading="lazy">
+        <div class="body"><h3>Ticketing &amp; Booking Platform</h3><p>Redis locks, caching and queues keep seat sales correct during peak-season rushes.</p>
+          <div class="row"><div class="chips"><span class="chip">Go</span><span class="chip">Redis</span><span class="chip">Queue</span></div><button class="btn primary sm" data-open="ticket">Open prototype</button></div></div>
+      </article>
+      <article class="pcard" style="--pc:var(--milk)">
+        <img src="assets/erp.svg" alt="Animated seafood production line" loading="lazy">
+        <div class="body"><h3>Seafood Manufacturing ERP</h3><p>Batch traceability from intake to export, with QC failures routed back to rework.</p>
+          <div class="row"><div class="chips"><span class="chip">Laravel</span><span class="chip">MySQL</span><span class="chip">Docker</span></div><button class="btn primary sm" data-open="erp">Open prototype</button></div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">Huynh Trong Nghia · Prototypes are simplified simulations of production systems (code under NDA) · <a href="https://github.com/htnghia27022002">github.com/htnghia27022002</a></div></footer>
+
+<!-- ================= PROTOTYPE: CRM ================= -->
+<dialog class="proto" id="dlg-crm" aria-labelledby="crm-h">
+  <div class="chrome"><span class="dots"><i style="background:#3b82f6"></i><i style="background:#6b7280"></i><i style="background:#d8d4cb"></i></span><span class="url">crm.internal / flows / vip-deposit-reward</span><button class="close" data-close>Close ✕</button></div>
+  <div class="ph">
+    <div>
+      <div class="eyebrow" style="color:var(--indigo)">Gaming CRM</div>
+      <h2 id="crm-h">Real-time Workflow Platform</h2>
+      <p class="desc">Business teams build flows visually, Temporal runs them reliably, and players get updates in real time.</p>
+      <div class="chips"><span class="chip">Go</span><span class="chip">Temporal</span><span class="chip">NATS</span><span class="chip">Kafka</span><span class="chip">WebSocket</span><span class="chip">ClickHouse</span></div>
+      <ul>
+        <li>Stateful workflow engine on <b>Temporal</b> with automatic retries</li>
+        <li>Node-based flow builder: logic configured at runtime</li>
+        <li>Go <b>WebSocket cluster</b>, tens of thousands of connections</li>
+        <li>NATS + Kafka pipelines; analytics in ClickHouse</li>
+      </ul>
+      <div class="try">Try it: turn on <b>Inject failure</b> and run the workflow. Temporal retries the failed step, so the player's reward is never lost.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title">workflow: vip-deposit-reward</div>
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="crmFail" class="danger"> Inject failure</label>
+          <button class="btn sm primary" id="crmRun">▶ Run workflow</button>
+        </div>
+      </div>
+      <div class="flow" id="crmFlow">
+        <div class="node"><span class="badge">retry</span><b>Trigger</b><small>player.deposit</small></div>
+        <div class="node"><span class="badge">retry</span><b>Condition</b><small>VIP tier ≥ 3</small></div>
+        <div class="node"><span class="badge" id="crmBadge">retry 1/3</span><b>Reward</b><small>grant bonus</small></div>
+        <div class="node"><span class="badge">retry</span><b>Notify</b><small>push · WS</small></div>
+        <div class="node"><span class="badge">retry</span><b>Complete</b><small>persist state</small></div>
+      </div>
+      <div class="log" id="crmLog"></div>
+      <div class="ws">
+        <canvas id="wsCanvas" aria-label="WebSocket connections"></canvas>
+        <div class="meter"><b id="wsCount">12,000</b><span>live WebSocket connections</span>
+          <input type="range" id="wsRange" min="1000" max="50000" step="1000" value="12000" aria-label="Connections">
+          <span id="wsMsg">≈ 3 gateway nodes</span></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ================= PROTOTYPE: TMS ================= -->
+<dialog class="proto" id="dlg-tms" aria-labelledby="tms-h">
+  <div class="chrome"><span class="dots"><i style="background:#3b82f6"></i><i style="background:#6b7280"></i><i style="background:#d8d4cb"></i></span><span class="url">dispatch.tms / live-map</span><button class="close" data-close>Close ✕</button></div>
+  <div class="ph">
+    <div>
+      <div class="eyebrow" style="color:var(--cyan)">Logistics</div>
+      <h2 id="tms-h">TMS / WMS / Last-mile Delivery</h2>
+      <p class="desc">Backend for driver, shipper and admin apps used by 15+ enterprises.</p>
+      <div class="chips"><span class="chip">Go</span><span class="chip">PHP</span><span class="chip">REST</span><span class="chip">WebSocket</span><span class="chip">GPS</span></div>
+      <ul>
+        <li>Automated order intake → routing → dispatch</li>
+        <li>Real-time GPS sync; dynamic routing cut costs <b>15–20%</b></li>
+        <li>Barcode/QR scanning and proof-of-delivery uploads</li>
+        <li>1,000+ daily users on mobile and web</li>
+      </ul>
+      <div class="try">Try it: <b>click the map</b> to create a delivery order. Watch it get routed, dispatched and delivered.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title">dispatch console · live</div>
+        <div class="controls">
+          <button class="btn sm" id="tmsRandom">+ Random order</button>
+          <button class="btn sm primary" id="tmsBurst">⚡ 5 orders</button>
+        </div>
+      </div>
+      <div class="tms">
+        <div class="map" id="tmsMap">
+          <svg viewBox="0 0 600 400" id="tmsSvg" aria-label="Delivery map">
+            <defs><pattern id="g" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#141c2b"/></pattern></defs>
+            <rect width="600" height="400" fill="url(#g)"/>
+            <path d="M0 250 C150 220 300 300 600 210" stroke="#1a2436" stroke-width="18" fill="none"/>
+            <path d="M210 0 C240 140 180 260 260 400" stroke="#1a2436" stroke-width="14" fill="none"/>
+            <g id="tmsRoutes"></g><g id="tmsPins"></g><g id="tmsTrucks"></g>
+            <rect x="72" y="292" width="40" height="34" rx="8" fill="#e7e3da"/>
+            <text x="92" y="314" text-anchor="middle" font-size="12" font-weight="800" fill="#05070d" font-family="Manrope,sans-serif">WH</text>
+          </svg>
+          <div class="hint2">Click the map to place an order</div>
+        </div>
+        <div class="orders" id="tmsOrders"><div style="color:var(--muted);font-size:12px;padding:6px">No orders yet.</div></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><b id="kOrders">0</b><span>orders created</span></div>
+        <div class="kpi"><b id="kTransit" style="color:var(--cyan)">0</b><span>in transit</span></div>
+        <div class="kpi"><b id="kDone" style="color:var(--green)">0</b><span>delivered (POD)</span></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ================= PROTOTYPE: TICKET ================= -->
+<dialog class="proto" id="dlg-ticket" aria-labelledby="tk-h">
+  <div class="chrome"><span class="dots"><i style="background:#3b82f6"></i><i style="background:#6b7280"></i><i style="background:#d8d4cb"></i></span><span class="url">booking-service / concert-a / seats</span><button class="close" data-close>Close ✕</button></div>
+  <div class="ph">
+    <div>
+      <div class="eyebrow" style="color:var(--text)">Ticketing</div>
+      <h2 id="tk-h">Booking without double-booking</h2>
+      <p class="desc">Stays correct when thousands of people grab the same seats at peak season.</p>
+      <div class="chips"><span class="chip">Go</span><span class="chip">Redis lock</span><span class="chip">Cache</span><span class="chip">Queue</span></div>
+      <ul>
+        <li><b>Redis distributed lock</b> per seat: one holder at a time</li>
+        <li>Cache absorbs read spikes on seat maps</li>
+        <li>Queue smooths write bursts during sales</li>
+      </ul>
+      <div class="try">Try it: turn <b>Redis lock</b> off and hit <b>Peak traffic</b> to see double-bookings. Turn it back on and they stop.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title">booking-service</div>
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="tkLock" checked> Redis lock</label>
+          <button class="btn sm" id="tkRace">2 users, 1 seat</button>
+          <button class="btn sm primary" id="tkPeak">Peak traffic</button>
+          <button class="btn sm" id="tkReset">Reset</button>
+        </div>
+      </div>
+      <div class="stage">STAGE</div>
+      <div class="seats" id="tkSeats"></div>
+      <div class="legend">
+        <span><i style="background:#1c2433;border:1px solid #2a3850"></i>free</span>
+        <span><i style="background:var(--cyan)"></i>user A</span>
+        <span><i style="background:var(--violet)"></i>user B</span>
+        <span><i style="background:#3a4456"></i>other buyers</span>
+        <span><i style="background:var(--green)"></i>you</span>
+        <span><i style="background:var(--rose)"></i>double-booked</span>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><b id="tkBooked" style="color:var(--green)">0</b><span>bookings</span></div>
+        <div class="kpi"><b id="tkRejected" style="color:var(--amber)">0</b><span>rejected safely</span></div>
+        <div class="kpi"><b id="tkDouble" style="color:var(--rose)">0</b><span>double-booked</span></div>
+      </div>
+      <div class="log" id="tkLog"></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ================= PROTOTYPE: ERP ================= -->
+<dialog class="proto" id="dlg-erp" aria-labelledby="erp-h">
+  <div class="chrome"><span class="dots"><i style="background:#3b82f6"></i><i style="background:#6b7280"></i><i style="background:#d8d4cb"></i></span><span class="url">erp.plant-1 / production-line</span><button class="close" data-close>Close ✕</button></div>
+  <div class="ph">
+    <div>
+      <div class="eyebrow" style="color:var(--milk)">Manufacturing</div>
+      <h2 id="erp-h">Seafood Manufacturing ERP</h2>
+      <p class="desc">Every batch is tracked from intake to export, replacing manual paperwork.</p>
+      <div class="chips"><span class="chip">PHP</span><span class="chip">Laravel</span><span class="chip">MySQL</span><span class="chip">Docker</span></div>
+      <ul>
+        <li>Intake, processing, QC, packing, cold storage, shipping</li>
+        <li><b>Batch traceability</b> across every stage</li>
+        <li>QC failures routed back to rework automatically</li>
+      </ul>
+      <div class="try">Try it: receive batches and watch them move through the line. About 15% fail QC and go back for rework.</div>
+    </div>
+    <div class="demo">
+      <div class="demo-head">
+        <div class="title">production-line · plant 1</div>
+        <div class="controls">
+          <label class="toggle"><input type="checkbox" id="erpAuto" checked> Auto intake</label>
+          <button class="btn sm primary" id="erpAdd">+ Receive batch</button>
+        </div>
+      </div>
+      <div class="line" id="erpLine"></div>
+      <div class="belt"></div>
+      <div class="kpis">
+        <div class="kpi"><b id="eIn">0 kg</b><span>received</span></div>
+        <div class="kpi"><b id="eCold" style="color:var(--cyan)">0 kg</b><span>in cold storage</span></div>
+        <div class="kpi"><b id="eShip" style="color:var(--green)">0 kg</b><span>shipped</span></div>
+      </div>
+      <div class="log" id="erpLog"></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ================= PAGE + PROTOTYPE LOGIC ================= -->
+<script>
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = n => n.toLocaleString('en-US');
+const PROTOS = ['crm','tms','ticket','erp'];
+
+function makeLog(el){
+  const t0 = performance.now();
+  return (msg, cls='') => {
+    const d = document.createElement('div');
+    const t = ((performance.now()-t0)/1000).toFixed(2).padStart(6,' ');
+    d.innerHTML = `<span class="t">${t}s</span><span class="${cls}">${msg}</span>`;
+    el.appendChild(d); el.scrollTop = el.scrollHeight;
+    while (el.children.length > 80) el.firstChild.remove();
+  };
+}
+
+/* ---------- dialogs ---------- */
+window.openProto = id => {
+  const d = document.getElementById('dlg-' + id);
+  if (!d || d.open) return;
+  document.querySelectorAll('dialog.proto[open]').forEach(x => x.close());
+  d.showModal();
+  try { history.replaceState(null, '', '#' + id); } catch {}
+  d.dispatchEvent(new Event('opened'));
+};
+document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openProto(b.dataset.open)));
+document.querySelectorAll('dialog.proto').forEach(d => {
+  d.querySelector('[data-close]').addEventListener('click', () => d.close());
+  d.addEventListener('click', e => { if (e.target === d) d.close(); });
+  d.addEventListener('close', () => { try { history.replaceState(null, '', location.pathname); } catch {} });
+});
+addEventListener('load', () => { const h = location.hash.slice(1); if (PROTOS.includes(h)) openProto(h); });
+
+/* ---------- bento spotlight + copy ---------- */
+document.querySelectorAll('.tile').forEach(t => t.addEventListener('pointermove', e => {
+  const r = t.getBoundingClientRect();
+  t.style.setProperty('--mx', (e.clientX - r.left) + 'px'); t.style.setProperty('--my', (e.clientY - r.top) + 'px');
+}));
+$('#copyMail').addEventListener('click', async () => {
+  const b = $('#copyMail');
+  try { await navigator.clipboard.writeText($('#mail').textContent); b.textContent = 'Copied ✓'; }
+  catch { const r = document.createRange(); r.selectNodeContents($('#mail')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Press Ctrl+C'; }
+  setTimeout(() => b.textContent = 'Copy email', 1800);
+});
+/* project cards tilt */
+if (!reduced) document.querySelectorAll('.pcard').forEach(c => {
+  c.addEventListener('pointermove', e => {
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left)/r.width - .5, y = (e.clientY - r.top)/r.height - .5;
+    c.style.transform = `perspective(900px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-3px)`;
+  });
+  c.addEventListener('pointerleave', () => c.style.transform = '');
+});
+
+/* ---------- CRM ---------- */
+(() => {
+  const nodes = [...document.querySelectorAll('#crmFlow .node')];
+  const log = makeLog($('#crmLog'));
+  const btn = $('#crmRun'), badge = $('#crmBadge');
+  const steps = ['TriggerActivity','EvaluateCondition','GrantRewardActivity','NotifyPlayerActivity','CompleteWorkflow'];
+  log('Temporal worker connected · task-queue=crm-flows','info');
+  btn.onclick = async () => {
+    btn.disabled = true;
+    nodes.forEach(n => n.className = 'node');
+    const id = 'wf-' + Math.random().toString(36).slice(2,8);
+    log(`WorkflowExecutionStarted  id=${id}`,'info');
+    for (let i=0;i<nodes.length;i++){
+      const n = nodes[i];
+      n.classList.add('active');
+      log(`ActivityTaskScheduled     ${steps[i]}`);
+      await sleep(650);
+      if (i === 2 && $('#crmFail').checked){
+        for (let a=1;a<=2;a++){
+          n.classList.remove('active'); n.classList.add('fail');
+          badge.textContent = `retry ${a}/3`;
+          log(`ActivityTaskFailed        ${steps[i]}: wallet-service timeout`,'err');
+          log(`  ↳ retry policy: backoff ${a}s (attempt ${a+1}/3)`,'warn');
+          await sleep(900);
+          n.classList.remove('fail'); n.classList.add('active');
+          await sleep(500);
+        }
+      }
+      n.classList.remove('active'); n.classList.add('done');
+      log(`ActivityTaskCompleted     ${steps[i]}`,'ok');
+    }
+    log(`WorkflowExecutionCompleted id=${id} ✓ reward delivered exactly once`,'ok');
+    btn.disabled = false;
+  };
+
+  const cv = $('#wsCanvas'), ctx = cv.getContext('2d'), range = $('#wsRange'), dlg = $('#dlg-crm');
+  let parts = [];
+  const colors = ['#60a5fa','#3b82f6','#93c5fd','#f5f6f8'];
+  const target = () => Math.min(260, Math.round(range.value/180));
+  const spawn = () => ({x: Math.random()*cv.width*0.15, y: Math.random()*cv.height, v: 0.6+Math.random()*1.6, c: colors[Math.random()*4|0]});
+  function onRange(){
+    const n = +range.value;
+    $('#wsCount').textContent = fmt(n);
+    $('#wsMsg').textContent = `≈ ${Math.max(1,Math.ceil(n/5000))} gateway node${n>5000?'s':''} · NATS fan-out`;
+  }
+  range.oninput = onRange; onRange();
+  function frame(){
+    if (!dlg.open) return;
+    const d = devicePixelRatio, w = Math.round(cv.clientWidth*d), h = Math.round(cv.clientHeight*d);
+    if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; parts = []; }
+    const W = cv.width, H = cv.height;
+    ctx.clearRect(0,0,W,H);
+    const gws = Math.max(1,Math.ceil(range.value/5000)), shown = Math.min(gws,6), gx = W*0.84;
+    for (let g=0; g<shown; g++){
+      const gy = H*(g+0.5)/shown;
+      ctx.fillStyle = '#0f1522'; ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 1.5*d;
+      ctx.beginPath(); ctx.roundRect(gx-14*d, gy-8*d, 28*d, 16*d, 5*d); ctx.fill(); ctx.stroke();
+    }
+    ctx.fillStyle='#b4b1aa'; ctx.font = `${10*d}px Manrope,sans-serif`;
+    ctx.fillText(gws>6?`${gws} gateways`:'gateways', gx-26*d, H-4*d);
+    while (parts.length < target()) parts.push(spawn());
+    if (parts.length > target()) parts.length = target();
+    for (const p of parts){
+      const lane = Math.min(shown-1, Math.max(0, Math.floor(p.y/H*shown)));
+      const gy = H*(lane+0.5)/shown;
+      p.x += p.v*d*(reduced?0.3:1.2); p.y += (gy - p.y)*0.01;
+      if (p.x > gx-14*d) Object.assign(p, spawn(), {x:0});
+      ctx.fillStyle = p.c; ctx.globalAlpha = .85;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2*d, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  dlg.addEventListener('opened', () => requestAnimationFrame(frame));
+})();
+
+/* ---------- TMS ---------- */
+(() => {
+  const svg = $('#tmsSvg'), NS = 'http://www.w3.org/2000/svg';
+  const routes = $('#tmsRoutes'), pins = $('#tmsPins'), trucks = $('#tmsTrucks'), list = $('#tmsOrders');
+  const depot = {x:92, y:309};
+  const colors = ['#60a5fa','#93c5fd','#3b82f6','#e7e3da','#f5f6f8'];
+  let seq = 1000, stats = {orders:0, transit:0, done:0}, seeded = false;
+  const labels = {created:'Created',routed:'Routed',dispatched:'Dispatched',transit:'In transit',delivered:'Delivered ✓'};
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  const kpi = () => { $('#kOrders').textContent = stats.orders; $('#kTransit').textContent = stats.transit; $('#kDone').textContent = stats.done; };
+  function toSvg(evt){ const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+  async function createOrder(x, y){
+    if (list.firstElementChild && !list.firstElementChild.classList.contains('order')) list.innerHTML = '';
+    const id = 'ORD-' + (++seq), c = colors[seq % colors.length];
+    stats.orders++; kpi();
+    const pin = el('circle',{cx:x, cy:y, r:7, fill:c}); pins.appendChild(pin);
+    const ring = el('circle',{cx:x, cy:y, r:7, fill:'none', stroke:c, 'stroke-width':2}); pins.appendChild(ring);
+    ring.animate([{r:7, opacity:.9},{r:24, opacity:0}],{duration:1400, iterations:Infinity});
+    const row = document.createElement('div'); row.className='order';
+    row.innerHTML = `<span class="id" style="color:${c}">${id}</span><span class="st created">${labels.created}</span><span class="eta"></span>`;
+    list.prepend(row);
+    const st = row.querySelector('.st'), eta = row.querySelector('.eta');
+    const set = s => { st.className = 'st ' + s; st.textContent = labels[s]; };
+    await sleep(600);
+    const mx = (depot.x + x)/2 + (Math.random()-.5)*160, my = (depot.y + y)/2 + (Math.random()-.5)*160;
+    const path = el('path',{d:`M${depot.x},${depot.y} Q${mx},${my} ${x},${y}`, fill:'none', stroke:c, 'stroke-width':3, 'stroke-dasharray':'7 7', opacity:.7, 'stroke-linecap':'round'});
+    routes.appendChild(path);
+    const len = path.getTotalLength();
+    set('routed'); eta.textContent = `route ${(len/40).toFixed(1)} km`;
+    await sleep(700); set('dispatched');
+    const truck = el('g',{});
+    truck.appendChild(el('rect',{x:-10,y:-6,width:14,height:12,rx:2,fill:c}));
+    truck.appendChild(el('rect',{x:4,y:-4,width:7,height:8,rx:2,fill:c,opacity:.8}));
+    trucks.appendChild(truck);
+    await sleep(500); set('transit'); stats.transit++; kpi();
+    const dur = reduced ? 300 : Math.max(2200, len*9), t0 = performance.now();
+    await new Promise(res => {
+      (function step(now){
+        const k = Math.min(1, (now - t0)/dur);
+        const p = path.getPointAtLength(k*len), q = path.getPointAtLength(Math.min(len, k*len + 1));
+        truck.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${Math.atan2(q.y-p.y, q.x-p.x)*180/Math.PI})`);
+        eta.textContent = `ETA ${Math.ceil((1-k)*dur/1000)}s · GPS live`;
+        k < 1 ? requestAnimationFrame(step) : res();
+      })(t0);
+    });
+    set('delivered'); eta.textContent = 'QR scanned · POD photo uploaded';
+    stats.transit--; stats.done++; kpi();
+    pin.setAttribute('fill', '#34d399'); ring.remove(); truck.remove();
+    path.animate([{opacity:.7},{opacity:0}],{duration:1200, fill:'forwards'}).onfinish = () => path.remove();
+    setTimeout(() => pin.remove(), 6000);
+  }
+  const rand = () => createOrder(160 + Math.random()*410, 30 + Math.random()*340);
+  $('#tmsMap').addEventListener('click', e => { const p = toSvg(e); createOrder(p.x, p.y); });
+  $('#tmsRandom').onclick = rand;
+  $('#tmsBurst').onclick = () => { for (let i=0;i<5;i++) setTimeout(rand, i*250); };
+  $('#dlg-tms').addEventListener('opened', () => { if (!seeded){ seeded = true; rand(); setTimeout(rand, 700); } });
+})();
+
+/* ---------- Ticket ---------- */
+(() => {
+  const grid = $('#tkSeats'), log = makeLog($('#tkLog'));
+  const rows = 'ABCDE', cols = 10;
+  let seats = [], stat = {b:0, r:0, d:0};
+  const kpi = () => { $('#tkBooked').textContent = stat.b; $('#tkRejected').textContent = stat.r; $('#tkDouble').textContent = stat.d; };
+  function build(){
+    grid.innerHTML = ''; seats = []; stat = {b:0,r:0,d:0}; kpi();
+    for (const r of rows) for (let c=1;c<=cols;c++){
+      const b = document.createElement('button'); b.className='seat'; b.textContent = r+c;
+      const s = {el:b, id:r+c, owner:null};
+      if (Math.random() < .22){ s.owner='other'; b.classList.add('taken'); }
+      b.onclick = () => book(s);
+      grid.appendChild(b); seats.push(s);
+    }
+  }
+  const locked = () => $('#tkLock').checked;
+  function book(s){
+    if (s.owner){ stat.r++; kpi(); log(`You → ${s.id}: rejected, seat already sold`,'warn'); return; }
+    s.owner='you'; s.el.className='seat you'; stat.b++; kpi(); log(`You → ${s.id}: booked ✓`,'ok');
+  }
+  $('#tkReset').onclick = () => { build(); log('Seat map reset','info'); };
+  $('#tkRace').onclick = async () => {
+    const free = seats.filter(s => !s.owner);
+    if (!free.length){ log('No free seats. Press Reset.','warn'); return; }
+    const s = free[Math.random()*free.length|0];
+    s.el.classList.add('target');
+    log(`User A & User B both request ${s.id} at t=0ms`,'info');
+    await sleep(500);
+    if (locked()){
+      log(`A: SET lock:${s.id} NX PX 5000 → OK`,'ok');
+      log(`B: SET lock:${s.id} NX PX 5000 → nil (held by A)`,'warn');
+      await sleep(500);
+      s.owner='a'; s.el.className='seat a'; stat.b++; stat.r++; kpi();
+      log(`A booked ${s.id} ✓ · B asked to pick another seat`,'ok');
+    } else {
+      log('A: SELECT status → free'); log('B: SELECT status → free (stale read)','warn');
+      await sleep(500);
+      log(`A: UPDATE ${s.id} owner=A`); log(`B: UPDATE ${s.id} owner=B`);
+      s.owner='double'; s.el.className='seat double'; stat.b+=2; stat.d++; kpi();
+      log(`✕ ${s.id} sold twice. Two customers, one seat.`,'err');
+    }
+  };
+  $('#tkPeak').onclick = async () => {
+    const btn = $('#tkPeak'); btn.disabled = true;
+    const N = 60, lock = locked();
+    log(`Peak: ${N} concurrent requests · lock=${lock?'ON':'OFF'}`,'info');
+    const reqs = Array.from({length:N}, (_,i) => ({u:'u'+(i+1), s: seats[Math.random()*seats.length|0]}));
+    const snapshot = new Map(seats.map(s => [s, s.owner]));
+    for (const q of reqs){
+      const s = q.s;
+      if (lock){
+        if (s.owner) stat.r++;
+        else { s.owner = q.u; s.el.className = 'seat ' + (Math.random()<.5?'a':'b'); stat.b++; }
+      } else {
+        if (snapshot.get(s)) stat.r++;
+        else if (s.owner && s.owner !== 'double'){ s.owner='double'; s.el.className='seat double'; stat.b++; stat.d++; log(`✕ ${s.id} double-booked`,'err'); }
+        else if (s.owner === 'double') stat.b++;
+        else { s.owner = q.u; s.el.className = 'seat ' + (Math.random()<.5?'a':'b'); stat.b++; }
+      }
+      kpi();
+      await sleep(reduced ? 0 : 35);
+    }
+    log(lock ? `Done: ${stat.d} double-bookings. The lock serialised every seat ✓` : `Done: ${stat.d} seats sold more than once ✕`, lock ? 'ok' : 'err');
+    btn.disabled = false;
+  };
+  build();
+  log('booking-service ready · redis lock enabled','info');
+})();
+
+/* ---------- ERP ---------- */
+(() => {
+  const stages = [['Receiving','🐟'],['Processing','🔪'],['Quality check','🔬'],['Packing','📦'],['Cold storage','❄️'],['Shipping','🚚']];
+  const line = $('#erpLine'), log = makeLog($('#erpLog')), dlg = $('#dlg-erp');
+  const species = ['Shrimp','Pangasius','Tuna','Squid','Salmon'];
+  const boxes = stages.map(([n,ic]) => {
+    const d = document.createElement('div'); d.className='stg';
+    d.innerHTML = `<h4><span>${n}</span><em>${ic}</em></h4><div class="cnt">0 batches</div>`;
+    line.appendChild(d); return d;
+  });
+  let batches = [], seq = 0, kg = {in:0, cold:0, ship:0}, n = 0;
+  const fmtKg = v => fmt(v) + ' kg';
+  function render(){
+    boxes.forEach((b,i) => {
+      b.querySelectorAll('.tok').forEach(t => t.remove());
+      const here = batches.filter(x => x.stage === i);
+      b.querySelector('.cnt').textContent = `${here.length} batch${here.length===1?'':'es'}`;
+      here.slice(0,4).forEach(x => {
+        const t = document.createElement('div'); t.className = 'tok' + (x.rework ? ' rework' : '');
+        t.textContent = x.id; t.title = `${x.sp} · ${x.kg} kg`;
+        b.appendChild(t);
+      });
+    });
+    $('#eIn').textContent = fmtKg(kg.in); $('#eCold').textContent = fmtKg(kg.cold); $('#eShip').textContent = fmtKg(kg.ship);
+  }
+  function add(){
+    const b = {id:'B-' + String(++seq).padStart(3,'0'), kg: 200 + (Math.random()*60|0)*10, sp: species[Math.random()*species.length|0], stage:0, t:0, rework:false, qc:false};
+    batches.push(b); kg.in += b.kg;
+    log(`${b.id} received · ${b.sp} ${b.kg} kg`,'info'); render();
+  }
+  function tick(){
+    for (const b of batches){
+      if (++b.t < (b.stage === 4 ? 4 : 2)) continue;
+      b.t = 0;
+      if (b.stage === 2 && !b.qc){
+        b.qc = true;
+        if (!b.rework && Math.random() < .15){ b.stage = 1; b.rework = true; log(`${b.id} QC failed (temperature) → rework`,'warn'); continue; }
+        log(`${b.id} QC passed ✓`,'ok');
+      }
+      if (b.stage === 1 && b.rework) b.qc = false;
+      b.stage++;
+      if (b.stage === 4){ kg.cold += b.kg; log(`${b.id} stored at −18 °C · lot ${b.id}-${b.sp.slice(0,3).toUpperCase()}`); }
+      if (b.stage === 5){ kg.cold -= b.kg; log(`${b.id} loaded for export`,'info'); }
+      if (b.stage === 6){ kg.ship += b.kg; b.done = true; log(`${b.id} shipped · ${b.kg} kg · traceable end-to-end`,'ok'); }
+    }
+    batches = batches.filter(b => !b.done);
+    render();
+  }
+  $('#erpAdd').onclick = add;
+  setInterval(() => { if (!dlg.open) return; tick(); if ($('#erpAuto').checked && ++n % 3 === 0 && batches.length < 14) add(); }, reduced ? 1500 : 900);
+  add(); add();
+})();
+</script>
+
+<!-- ================= 3D MINI GAME ================= -->
+<script type="module" src="game.js"></script>
+</body>
+</html>
