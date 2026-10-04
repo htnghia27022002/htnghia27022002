@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://htnghia27022002.github.io"><img src="https://img.shields.io/badge/Interactive_Portfolio-818cf8?style=for-the-badge&logo=githubpages&logoColor=white" alt="Portfolio"></a>
-  <a href="https://linkedin.com/in/nghiahuynh"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+  <a href="https://linkedin.com/in/nghia-huynh-3a2b26310"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="mailto:htnghia2702@gmail.com"><img src="https://img.shields.io/badge/Email-22d3ee?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
 </p>
 
